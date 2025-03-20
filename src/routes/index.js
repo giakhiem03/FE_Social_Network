@@ -4,9 +4,6 @@ import LoginPage from "../pages/Login";
 const PATH = {
     HOME: "/",
     LOGIN: "/login",
-    ok: {
-        a: "hehe",
-    },
 };
 
 const PAGE = {
