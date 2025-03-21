@@ -13,28 +13,10 @@ function LoginPage() {
     };
     return (
         <div className="wrap">
-            {/* <div className="loginbox">
-                <img src={avatar} className="avatar" />
-                <h1>LOG-IN</h1>
-                <form>
-                    <p>Username</p>
-                    <input type="text" name="" placeholder="Who are you ?" />
-                    <p>Password</p>
-                    <input
-                        type="password"
-                        name=""
-                        placeholder="Prove that it is true"
-                    />
-                    <input type="submit" name="" value="Login" />
-                    <a href="#">Lost your password?</a> <br />
-                    <a href="#">Don't have an account?</a>
-                </form>
-            </div> */}
-
             <Form
                 className="custom-form"
-                name="loginForm" // Tên form (tùy chọn, để định danh)
-                layout="vertical" //vertical, horizontal, hoặc inline
+                name="loginForm"
+                layout="vertical"
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
                 initialValues={{ username: "", password: "" }}
@@ -42,18 +24,18 @@ function LoginPage() {
             >
                 <img src={avatar} className="avatar" />
                 <div className="wrap-input-login">
-                    <h1 className="login-text">ĐĂNG NHẬP</h1>
+                    <h1 className="login-text">LOGIN</h1>
                     <Form.Item
-                        label="Tên người dùng"
+                        label="Username"
                         name="username"
                         rules={[
                             {
                                 required: true,
-                                message: "Vui lòng nhập tên người dùng!",
+                                message: "Please enter your username!",
                             },
                         ]}
                     >
-                        <Input placeholder="Nhập tên người dùng" />
+                        <Input placeholder="Enter your username" />
                     </Form.Item>
 
                     <Form.Item
@@ -62,17 +44,22 @@ function LoginPage() {
                         rules={[
                             {
                                 required: true,
-                                message: "Vui lòng nhập mật khẩu!",
+                                message: "Please enter your password!",
                             },
                         ]}
                     >
-                        <Input.Password placeholder="Nhập mật khẩu" />
+                        <Input.Password placeholder="Enter your password" />
                     </Form.Item>
                 </div>
 
                 <Form.Item>
-                    <Button type="default" htmlType="submit">
-                        Đăng nhập
+                    <Button
+                        type="default"
+                        htmlType="submit"
+                        size="large"
+                        style={{ padding: "20px 30px", marginBottom: "30px" }}
+                    >
+                        Login
                     </Button>
                 </Form.Item>
             </Form>
