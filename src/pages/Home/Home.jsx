@@ -1,6 +1,10 @@
-import Post from "../../components/Post/Post";
+import { useContext } from "react";
+import Post from "../../components/Home/Post/Post";
 import UserService from "../../service/UserService";
-import { Button } from "antd";
+import "./Home.scss";
+import CollapsedContext from "../../constants/CollapsedContext/CollapsedContext";
+import Header from "../../components/Home/Header/Header";
+
 function HomePage() {
     // const getDetailUser = () => {
     //     let res = UserService.getDetailUser(1);
@@ -10,10 +14,14 @@ function HomePage() {
     //         console.log("get failed");
     //     }
     // };
+    const collapsed = useContext(CollapsedContext);
 
     return (
-        <div className="wrap-home">
-            Home Page
+        <div
+            className="wrap-home"
+            style={collapsed ? { width: 900 } : { width: 700 }}
+        >
+            <Header />
             <Post />
         </div>
     );

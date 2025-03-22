@@ -13,7 +13,7 @@ import HomePage from "../pages/Home";
 import LoginPage from "../pages/Login";
 import Profile from "../pages/Profile";
 import Notification from "../pages/Notification";
-import MainLayout from "../components/Nav/MainLayout";
+import MainLayout from "../components/Layout/MainLayout";
 
 const PATH = {
     HOME: "/",
