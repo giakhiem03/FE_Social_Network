@@ -1,10 +1,11 @@
 import { Layout } from "antd";
-import avatar from "../../assets/image/avatar.png";
+import avatar from "../../assets/image/bg.jpg";
 import { Input } from "antd";
 import "./MainLayout.scss";
 import ListFriend from "../List/ListFriend";
 import MenuLeftHome from "../Menu-Left-Home/MenuLeftHome";
 import { Outlet } from "react-router";
+import { useState } from "react";
 
 const { Header, Content, Sider } = Layout;
 
@@ -18,13 +19,13 @@ const MainLayout = () => {
     ];
 
     const { Search } = Input;
-
+    const [collapsed, setCollapsed] = useState(false);
     return (
         <Layout style={{ minHeight: "100vh" }}>
             <Header
+                theme="dark"
                 className="d-flex align-items-center justify-content-between"
                 style={{
-                    background: "#fff",
                     padding: "10px",
                     position: "fixed",
                     minWidth: "100%",
@@ -46,7 +47,7 @@ const MainLayout = () => {
                     <Search
                         placeholder="Search..."
                         onSearch={(value) => console.log(value)}
-                        size="large"
+                        size="medium"
                         style={{
                             borderRadius: "4px",
                             display: "flex",
@@ -57,6 +58,7 @@ const MainLayout = () => {
                 <div
                     className="profile"
                     style={{
+                        color: "#fff",
                         padding: 16,
                         display: "flex",
                         alignItems: "center",
@@ -68,31 +70,43 @@ const MainLayout = () => {
                         style={{
                             borderRadius: "50%",
                             marginRight: "8px",
-                            width: "30px",
+                            width: "40px",
+                            height: "40px",
                         }}
                     />
                     <span style={{ fontSize: 18 }}>Ben Goro</span>
                 </div>
             </Header>
 
-            <Layout style={{ paddingTop: "64px" }}>
-                <Sider width={200} theme="light" className="side-home-left">
+            <Layout style={{ paddingTop: "64px", background: "#1c1c1d" }}>
+                <Sider
+                    collapsed={collapsed}
+                    onCollapse={(value) => setCollapsed(value)}
+                    width={300}
+                    theme="dark"
+                    className="side-home-left"
+                    collapsible
+                >
                     <MenuLeftHome />
                 </Sider>
                 <Content
                     style={{
-                        padding: "0 264px 0 214px",
-                        margin: "16px 0",
+                        display: "flex",
+                        justifyContent: "center",
+                        // margin: `0 384px 0 ${collapsed ? "214px" : "384px"}`,
+                        margin: "0 auto",
+                        padding: "16px 0",
                         overflow: "auto",
-                        maxWidth: "100%",
+                        maxWidth: "650px",
                         borderRadius: "6px",
+                        transition: "padding-left 0.3s",
                     }}
                 >
                     <Outlet />
                 </Content>
-                <Sider width={250} theme="light" className="side-home-right">
+                <Sider width={300} theme="dark" className="side-home-right">
                     <div className="community-chats">
-                        <h5>Community chats</h5>
+                        <div className="title">Community chats</div>
                         <ListFriend ListFriend={arr} />
                     </div>
                 </Sider>

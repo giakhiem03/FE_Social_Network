@@ -14,6 +14,10 @@ function App() {
                         path={PATH.PROFILE}
                         element={<PAGE.Profile />}
                     ></Route>
+                    <Route
+                        path={PATH.NOTIFICATION}
+                        element={<PAGE.Notification />}
+                    ></Route>
                 </Route>
             </Routes>
         </BrowserRouter>

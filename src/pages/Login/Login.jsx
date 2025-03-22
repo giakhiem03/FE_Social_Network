@@ -12,7 +12,7 @@ function LoginPage() {
         console.log("Lỗi:", errorInfo);
     };
     return (
-        <div className="wrap">
+        <div className="wrap-login">
             <Form
                 className="custom-form"
                 name="loginForm"

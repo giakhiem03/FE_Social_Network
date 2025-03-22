@@ -1,21 +1,20 @@
+import Post from "../../components/Post/Post";
 import UserService from "../../service/UserService";
 import { Button } from "antd";
 function HomePage() {
-    const getDetailUser = () => {
-        let res = UserService.getDetailUser(1);
-        if (res && res.errCode === 0) {
-            console.log("get succeed");
-        } else {
-            console.log("get failed");
-        }
-    };
+    // const getDetailUser = () => {
+    //     let res = UserService.getDetailUser(1);
+    //     if (res && res.errCode === 0) {
+    //         console.log("get succeed");
+    //     } else {
+    //         console.log("get failed");
+    //     }
+    // };
 
     return (
-        <div>
+        <div className="wrap-home">
             Home Page
-            <Button type="dashed" onClick={getDetailUser}>
-                Get User
-            </Button>
+            <Post />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import { Layout, Menu, List } from "antd";
+import { List } from "antd";
 import "./ListFriend.scss";
 
 function ListFriend({ ListFriend, onclick }) {
@@ -19,8 +19,9 @@ function ListFriend({ ListFriend, onclick }) {
                             alt={item.name}
                             style={{
                                 borderRadius: "50%",
-                                marginRight: "8px",
-                                width: "30px",
+                                margin: "6px 12px 6px 0",
+                                width: "36px",
+                                height: "36px",
                             }}
                         />
                         <span>{item.name}</span>

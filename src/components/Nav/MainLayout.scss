@@ -1,7 +1,12 @@
 .community-chats {
-    color: #000;
-    padding: 16px;
-    background: #fff;
+    padding: 0 8px;
+
+    .title {
+        font-size: 16px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color:#a5a8ac;
+        margin-bottom: 8px;
+    }
 }
 
 .side-home-left {

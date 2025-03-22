@@ -9,6 +9,7 @@ function MenuLeftHome() {
     return (
         <Menu
             mode="inline"
+            theme="dark"
             selectedKeys={[location.pathname]}
             onClick={({ key }) => navigate(key)}
             style={{

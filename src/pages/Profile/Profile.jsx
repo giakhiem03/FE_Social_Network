@@ -1,8 +1,7 @@
 import "./Profile.scss";
-import { Form, Input, Button } from "antd";
 
 function Profile() {
-    return <div className="wrap">Profile Page</div>;
+    return <div className="wrap-profile">Profile Page</div>;
 }
 
 export default Profile;
