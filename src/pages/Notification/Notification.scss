@@ -1,3 +1,94 @@
 .wrap-notification {
+    max-width: 900px;
+    margin: 24px auto;
 
+    .notification-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        
+        .notification-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-tabs {
+            .ant-tabs-content {
+                padding-left: 24px;
+            }
+
+            .ant-tabs-nav {
+                padding-left: 24px;
+            }
+        }
+    }
+
+    .notification-list {
+        .notification-item {
+            padding: 16px 24px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #fafafa;
+            }
+
+            &.unread {
+                background-color: #e6f7ff;
+
+                &:hover {
+                    background-color: #e6f7ff;
+                }
+            }
+
+            .notification-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .notification-icon {
+                    display: flex;
+                    align-items: center;
+                    font-size: 16px;
+                }
+            }
+
+            .notification-content {
+                padding-left: 24px;
+                
+                .notification-preview {
+                    display: block;
+                    color: #666;
+                    margin: 4px 0;
+                    font-style: italic;
+                }
+
+                .notification-time {
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .wrap-notification {
+        padding: 1rem;
+
+        .notification-container {
+            .notification-header {
+                padding: 12px 16px;
+            }
+        }
+
+        .notification-list {
+            .notification-item {
+                padding: 12px 16px;
+            }
+        }
+    }
 }
