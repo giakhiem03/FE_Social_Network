@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import CommentComponent from "./CommentComponent";
+import PostService from "../../../../service/PostService";
 
-function Comment({ postId, postComments }) {
+function Comment({ postId }) {
     const [comments, setComments] = useState([]);
 
     useEffect(() => {
-        setComments(postComments);
-    }, [postComments]);
+        fetchComments();
+    }, []);
 
-    const handleAddComment = (newComment) => {
-        setComments({
-            comments: [newComment, ...comments],
-        });
+    const fetchComments = async () => {
+        let comments = await PostService.getCommentsById(postId);
+        setComments(comments.data);
+    };
+
+    const handleAddComment = async (newComment) => {
+        let res = await PostService.addNewComment(newComment);
+        if (res && res.errCode === 0) {
+            fetchComments();
+        }
     };
 
     return (

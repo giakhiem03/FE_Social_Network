@@ -1,0 +1,10 @@
+.preview-image {
+    display: flex;
+    border: 1px solid #ccc;
+    width: 100%;
+    height: 50px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
+}

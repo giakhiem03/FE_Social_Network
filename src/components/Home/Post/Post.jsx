@@ -20,7 +20,6 @@ function Post() {
 
     const fetchPosts = async () => {
         let res = await PostService.getAllPosts();
-        console.log(res);
         if (res && res.data && res.errCode === 0) {
             setPostList(res.data);
         } else {
@@ -28,21 +27,15 @@ function Post() {
         }
     };
 
-    // const postList = [
-    //     {
-    //         id: 1,
-    //         avatar: <Avatar size={"large"} icon={<UserOutlined />} />,
-    //     },
-    //     {
-    //         id: 2,
-    //         avatar: <Avatar size={"large"} icon={<UserOutlined />} />,
-    //     },
-    // ];
+    const [activeComment, setActiveComment] = useState(null);
+
+    const handleToggleComment = (postId) => {
+        setActiveComment(activeComment === postId ? null : postId);
+    };
 
     return (
         <>
-            {postList &&
-                postList.length > 0 &&
+            {postList && postList.length > 0 ? (
                 postList.map((post) => (
                     <Card key={post.id} style={{ marginBottom: 16 }}>
                         <Card.Meta
@@ -84,26 +77,28 @@ function Post() {
                             }}
                         >
                             <Button icon={<LikeOutlined />}>Like</Button>
-                            <Button icon={<CommentOutlined />}>Comment</Button>
+                            <Button
+                                icon={<CommentOutlined />}
+                                onClick={() => handleToggleComment(post.id)}
+                            >
+                                Comment
+                            </Button>
                             <Button icon={<ShareAltOutlined />}>Share</Button>
                         </div>
                         <Divider />
-                        <Comment
-                            postId={post.id}
-                            postComments={post.comments}
-                        />
-                        {/* <div className="wrap-comment">
-                            <Avatar
-                                icon={<UserOutlined />}
-                                style={{ marginRight: 8 }}
-                            />
-                            <TextArea
-                                rows={1}
-                                placeholder="Write a comment..."
-                            />
-                        </div> */}
+                        {activeComment === post.id && (
+                            <Comment postId={post.id} />
+                        )}
                     </Card>
-                ))}
+                ))
+            ) : (
+                <h3
+                    className="d-flex align-items-center justify-content-center"
+                    style={{ opacity: 0.4, userSelect: "none", height: "70%" }}
+                >
+                    No contents...
+                </h3>
+            )}
         </>
     );
 }

@@ -1,18 +1,21 @@
 import "./Header.scss";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "../../../store/redux/actions/userActions";
 
 function Header() {
-    const user = useSelector((state) => state.user);
+    // const user = useSelector((state) => state.user);
     const dispatch = useDispatch();
 
     const handleLogin = () => {
         dispatch(
-            setUser({ id: 1, name: "John Doe", email: "john@example.com" })
+            setUser({
+                id: 1,
+                fullname: "Huỳnh Gia Khiêm",
+                name: "John Doe",
+                email: "john@example.com",
+            })
         );
     };
-
-    console.log(user);
 
     return (
         <div className="wrap-header-home">
