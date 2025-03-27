@@ -1,7 +1,9 @@
 const initialState = {
     id: 0,
     fullName: "",
+    username: "",
     email: "",
+    gender: "",
     avatar: "",
     phoneNumber: "",
 };

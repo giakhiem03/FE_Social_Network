@@ -1,4 +1,4 @@
-import { Card, Avatar, Button, Divider } from "antd";
+import { Card, Avatar, Button, Divider, Tooltip } from "antd";
 import {
     UserOutlined,
     LikeOutlined,
@@ -10,8 +10,12 @@ import Comment from "./Comment/Comment.jsx";
 import { useEffect, useState } from "react";
 import PostService from "../../../service/PostService.js";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import moment from "moment";
+import LikeButton from "../../Button/LikeButton/LikeButton.jsx";
 
 function Post() {
+    const user = useSelector((state) => state.user);
     const [postList, setPostList] = useState([]);
 
     useEffect(() => {
@@ -19,11 +23,12 @@ function Post() {
     }, []);
 
     const fetchPosts = async () => {
-        let res = await PostService.getAllPosts();
+        let res = await PostService.getAllPosts(user.username);
+        console.log("data", res);
         if (res && res.data && res.errCode === 0) {
             setPostList(res.data);
         } else {
-            toast.success(res.message);
+            toast.error(res.message);
         }
     };
 
@@ -39,51 +44,72 @@ function Post() {
                 postList.map((post) => (
                     <Card key={post.id} style={{ marginBottom: 16 }}>
                         <Card.Meta
-                            // avatar={post?.avatar}
-                            title="Some User"
-                            description="20 minutes ago"
+                            avatar={user?.avatar}
+                            title={user?.fullName}
+                            description={
+                                <Tooltip
+                                    title={moment(post.createdAt).format(
+                                        "YYYY-MM-DD HH:mm:ss"
+                                    )}
+                                >
+                                    <span
+                                        style={{
+                                            fontSize: 12,
+                                            color: "#999",
+                                        }}
+                                    >
+                                        {moment(post.createdAt).fromNow()}
+                                    </span>
+                                </Tooltip>
+                            }
                             className="wrap-post"
                         />
                         <div style={{ marginTop: 16 }}>
-                            <p>
-                                This is a post like on social media. It can
-                                contain text, images, and other media.
-                            </p>
-                            <div
-                                style={{
-                                    borderRadius: 8,
-                                    overflow: "hidden",
-                                    width: "100%",
-                                    backgroundColor: "#f2f2f2", // tùy chọn nếu ảnh không phủ hết khung
-                                    textAlign: "center", // để căn giữa ảnh
-                                }}
-                            >
-                                <img
-                                    src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/485059298_969209485394154_8363760988421917504_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=vNLFXfjYsE4Q7kNvgGdQZV1&_nc_oc=AdmoaCHNH6PZMla8WJtel1m8TyEKVmXCC9e7AeKuikVHUXt8ioMVwqGAlWiNjOiidMA2SRbq7erTdQLRrf2yIoTh&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=-zh-BQXkvcNHm1w7ximMDg&oh=00_AYExftgvnIkZvl1Azd2kTJXIK5B1voMes6Xkd-0x0ZUgaA&oe=67E43D75"
-                                    alt="background"
+                            <p>{post.caption}</p>
+                            {post.image && (
+                                <div
                                     style={{
+                                        borderRadius: 8,
+                                        overflow: "hidden",
                                         width: "100%",
-                                        objectFit: "contain", // giống backgroundSize: "contain"
-                                        display: "block", // tránh khoảng trắng dưới ảnh
+                                        backgroundColor: "#f2f2f2", // tùy chọn nếu ảnh không phủ hết khung
+                                        textAlign: "center", // để căn giữa ảnh
                                     }}
-                                />
-                            </div>
+                                >
+                                    <img
+                                        src={post.image}
+                                        alt="background"
+                                        style={{
+                                            width: "100%",
+                                            objectFit: "contain", // giống backgroundSize: "contain"
+                                            display: "block", // tránh khoảng trắng dưới ảnh
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                         <Divider />
                         <div
                             style={{
                                 display: "flex",
-                                justifyContent: "space-between",
+                                justifyContent: "space-around",
+                                alignItems: "center",
                             }}
                         >
-                            <Button icon={<LikeOutlined />}>Like</Button>
+                            <LikeButton
+                                postId={post.id}
+                                initialLikes={post?.reaction?.length}
+                                isLiked={() => {
+                                    return post?.reaction?.includes(user.id);
+                                }}
+                            />
                             <Button
                                 icon={<CommentOutlined />}
                                 onClick={() => handleToggleComment(post.id)}
                             >
                                 Comment
                             </Button>
-                            <Button icon={<ShareAltOutlined />}>Share</Button>
+                            {/* <Button icon={<ShareAltOutlined />}>Share</Button> */}
                         </div>
                         <Divider />
                         {activeComment === post.id && (

@@ -4,13 +4,26 @@ import { Input } from "antd";
 import "./MainLayout.scss";
 import ListFriend from "../List/ListFriend";
 import MenuLeftHome from "../Menu-Left-Home/MenuLeftHome";
-import { Outlet } from "react-router";
-import { useState } from "react";
+import { Outlet, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import CollapsedContext from "../../constants/CollapsedContext/CollapsedContext";
+import { useSelector } from "react-redux";
 
 const { Header, Content, Sider } = Layout;
 
 const MainLayout = () => {
+    const account = useSelector((state) => state.user);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!account.id) {
+            navigate("/login", {
+                state: { message: "Please login!" },
+                replace: true,
+            });
+        }
+    }, [account, navigate]);
+
     const arr = [
         {
             fullname: "Huỳnh Gia Khiêm",

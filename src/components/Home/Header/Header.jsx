@@ -1,22 +1,7 @@
 import "./Header.scss";
-import { useDispatch } from "react-redux";
-import { setUser } from "../../../store/redux/actions/userActions";
 
 function Header() {
-    // const user = useSelector((state) => state.user);
-    const dispatch = useDispatch();
-
-    const handleLogin = () => {
-        dispatch(
-            setUser({
-                id: 1,
-                fullname: "Huỳnh Gia Khiêm",
-                name: "John Doe",
-                email: "john@example.com",
-            })
-        );
-    };
-
+    const handlePost = () => {};
     return (
         <div className="wrap-header-home">
             <div className="post-input">
@@ -35,7 +20,7 @@ function Header() {
                     <button>📍</button>
                     <button>😊</button>
                 </div>
-                <button onClick={handleLogin} className="post-button">
+                <button onClick={handlePost} className="post-button">
                     Post
                 </button>
             </div>

@@ -11,23 +11,30 @@ import {
 } from "@ant-design/icons";
 import HomePage from "../pages/Home";
 import LoginPage from "../pages/Login";
-import Profile from "../pages/Profile";
-import Notification from "../pages/Notification";
+import ProfilePage from "../pages/Profile";
+import NotificationPage from "../pages/Notification";
 import MainLayout from "../components/Layout/MainLayout";
+import AuthRoute from "../components/Auth";
+import RegisterPage from "../pages/Register";
+import AuthLoginRoute from "../components/AuthLogin/AuthLogin";
 
 const PATH = {
     HOME: "/",
     LOGIN: "/login",
     PROFILE: "/profile",
     NOTIFICATION: "/notification",
+    REGISTER: "/register",
 };
 
 const PAGE = {
     MainLayout: MainLayout,
     Home: HomePage,
     Login: LoginPage,
-    Profile: Profile,
-    Notification: Notification,
+    Profile: ProfilePage,
+    Notification: NotificationPage,
+    Register: RegisterPage,
+    Auth: AuthRoute,
+    AuthLoginRoute: AuthLoginRoute,
 };
 
 const ROUTE = [

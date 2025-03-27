@@ -1,8 +1,8 @@
 import axios from "../utils/axiosCustomize";
 
 class PostService {
-    getAllPosts = () => {
-        return axios.get("api/post");
+    getAllPosts = (username) => {
+        return axios.get(`api/post?username=${username}`);
     };
 
     getCommentsById = (id) => {
@@ -20,6 +20,16 @@ class PostService {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
+        });
+    };
+
+    reactionPost = (user_id, post_id) => {
+        return new Promise((resolve, reject) => {
+            try {
+                resolve(axios.post("api/post/reaction", { user_id, post_id }));
+            } catch (error) {
+                reject(error);
+            }
         });
     };
 }
