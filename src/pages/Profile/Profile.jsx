@@ -14,8 +14,6 @@ import {
 import {
     EditOutlined,
     SettingOutlined,
-    UserAddOutlined,
-    MessageOutlined,
     HeartOutlined,
     CommentOutlined,
     ShareAltOutlined,
@@ -24,34 +22,38 @@ import {
     FileTextOutlined,
 } from "@ant-design/icons";
 import "./Profile.scss";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import CollapsedContext from "../../constants/CollapsedContext/CollapsedContext";
+import PostService from "../../service/PostService";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import Comment from "../../components/Home/Post/Comment/Comment";
+import LikeButton from "../../components/Button/LikeButton/LikeButton";
 
 function Profile() {
     const { Title, Text, Paragraph } = Typography;
 
-    // Mock data for posts
-    const posts = [
-        {
-            id: 1,
-            content: "Just another day at the office! 💻 #coding #developer",
-            image: "https://source.unsplash.com/random/800x600?coding",
-            likes: 124,
-            comments: 8,
-            shares: 3,
-            date: "2h ago",
-        },
-        {
-            id: 2,
-            content: "Beautiful sunset view from my window 🌅",
-            image: "https://source.unsplash.com/random/800x600?sunset",
-            likes: 231,
-            comments: 14,
-            shares: 5,
-            date: "5h ago",
-        },
-        // Add more posts as needed
-    ];
+    const account = useSelector((state) => state.user);
+    const [postList, setPostList] = useState([]);
+    const [activeComment, setActiveComment] = useState(null);
+    const handleToggleComment = (postId) => {
+        setActiveComment(activeComment === postId ? null : postId);
+    };
+
+    const fetchPostsForProfile = async () => {
+        let res = await PostService.getAllPostsForProfile(account.id);
+        console.log("res", res);
+        if (res && res.data && res.errCode === 0) {
+            setPostList(res.data);
+        } else {
+            toast.error(res.message);
+        }
+    };
+    useEffect(() => {
+        fetchPostsForProfile();
+    }, []);
+
     const collapsed = useContext(CollapsedContext);
     return (
         <div
@@ -61,7 +63,11 @@ function Profile() {
             {/* Cover Photo & Profile Section */}
             <div className="cover-photo">
                 <Image
-                    src="https://th.bing.com/th/id/OIP.bINRrgMKVRCN5lD913an4QHaNK?rs=1&pid=ImgDetMain"
+                    src={
+                        account.background
+                            ? `http://localhost:3001${account.background}`
+                            : `http://localhost:3001${account.avatar}`
+                    }
                     alt="Cover"
                     className="cover-image"
                     preview={true}
@@ -71,7 +77,11 @@ function Profile() {
                 <div className="profile-header">
                     <Avatar
                         size={180}
-                        src="https://th.bing.com/th/id/OIP.bINRrgMKVRCN5lD913an4QHaNK?rs=1&pid=ImgDetMain"
+                        src={
+                            account.avatar
+                                ? `http://localhost:3001${account.avatar}`
+                                : `http://localhost:3001/images/default-avatar.png`
+                        }
                         className="profile-avatar"
                         style={{ objectFit: "contain" }}
                         width="100%"
@@ -88,33 +98,35 @@ function Profile() {
 
             {/* Profile Info */}
             <div className="profile-info">
-                <Title level={2}>John Doe</Title>
-                <Text type="secondary">
-                    Software Developer | Photography Enthusiast
+                <Title style={{ paddingTop: 20 }} level={2}>
+                    John Doe
+                </Title>
+                <Text style={{ display: "block" }} type="secondary">
+                    {/* {account.bio} */}Bio
                 </Text>
-                <Paragraph className="profile-bio">
+                {/* <Paragraph className="profile-bio">
                     📍 San Francisco, CA
                     <br />
                     🎓 Computer Science @ Stanford
                     <br />
                     💼 Senior Developer @ Tech Corp
-                </Paragraph>
+                </Paragraph> */}
                 <Space className="profile-stats">
-                    <Text strong>2.5k Followers</Text>
+                    <Text strong>2.5k Friends</Text>
                     <Divider type="vertical" />
                     <Text strong>1.2k Following</Text>
                     <Divider type="vertical" />
-                    <Text strong>156 Posts</Text>
+                    <Text strong>{postList.length} Posts</Text>
                 </Space>
             </div>
 
             {/* Main Content */}
             <div className="profile-content">
                 <Tabs
-                    defaultActiveKey="posts"
+                    defaultActiveKey="postList"
                     items={[
                         {
-                            key: "posts",
+                            key: "postList",
                             label: (
                                 <span>
                                     <FileTextOutlined /> Posts
@@ -123,7 +135,7 @@ function Profile() {
                             children: (
                                 <List
                                     itemLayout="vertical"
-                                    dataSource={posts}
+                                    dataSource={postList}
                                     renderItem={(post) => (
                                         <Card
                                             className="post-card"
@@ -131,10 +143,12 @@ function Profile() {
                                         >
                                             <div className="post-header">
                                                 <Space>
-                                                    <Avatar src="https://th.bing.com/th/id/OIP.bINRrgMKVRCN5lD913an4QHaNK?rs=1&pid=ImgDetMain" />
+                                                    <Avatar
+                                                        src={`http://localhost:3001${account.avatar}`}
+                                                    />
                                                     <div>
                                                         <Text strong>
-                                                            John Doe
+                                                            {account.fullName}
                                                         </Text>
                                                         <br />
                                                         <Text type="secondary">
@@ -144,33 +158,48 @@ function Profile() {
                                                 </Space>
                                             </div>
                                             <Paragraph className="post-content">
-                                                {post.content}
+                                                {post.description}
                                             </Paragraph>
-                                            <Image
-                                                src={post.image}
-                                                alt="Post"
-                                                className="post-image"
-                                            />
+                                            {post.image && (
+                                                <Image
+                                                    src={`http://localhost:3001${post.image}`}
+                                                    alt="Post"
+                                                    className="post-image"
+                                                />
+                                            )}
                                             <div className="post-actions">
-                                                <Button
-                                                    type="text"
-                                                    icon={<HeartOutlined />}
-                                                >
-                                                    {post.likes}
-                                                </Button>
+                                                <LikeButton
+                                                    postId={post.id}
+                                                    initialLikes={
+                                                        post?.reaction?.length
+                                                    }
+                                                    isLiked={() => {
+                                                        return post?.reaction?.includes(
+                                                            account.id
+                                                        );
+                                                    }}
+                                                />
                                                 <Button
                                                     type="text"
                                                     icon={<CommentOutlined />}
-                                                >
-                                                    {post.comments}
-                                                </Button>
-                                                <Button
+                                                    onClick={() =>
+                                                        handleToggleComment(
+                                                            post.id
+                                                        )
+                                                    }
+                                                ></Button>
+                                                {/* <Button
                                                     type="text"
                                                     icon={<ShareAltOutlined />}
                                                 >
                                                     {post.shares}
-                                                </Button>
+                                                </Button> */}
                                             </div>
+
+                                            <Divider />
+                                            {activeComment === post.id && (
+                                                <Comment postId={post.id} />
+                                            )}
                                         </Card>
                                     )}
                                 />

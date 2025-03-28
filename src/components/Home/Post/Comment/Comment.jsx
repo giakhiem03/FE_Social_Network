@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CommentComponent from "./CommentComponent";
 import PostService from "../../../../service/PostService";
+import { toast } from "react-toastify";
 
 function Comment({ postId }) {
     const [comments, setComments] = useState([]);
@@ -11,13 +12,19 @@ function Comment({ postId }) {
 
     const fetchComments = async () => {
         let comments = await PostService.getCommentsById(postId);
-        setComments(comments.data);
+        if (comments && comments.data && comments.errCode === 0) {
+            setComments(comments.data);
+        } else {
+            toast.error(comments.message);
+        }
     };
 
     const handleAddComment = async (newComment) => {
         let res = await PostService.addNewComment(newComment);
         if (res && res.errCode === 0) {
             fetchComments();
+        } else {
+            toast.error(res.message);
         }
     };
 

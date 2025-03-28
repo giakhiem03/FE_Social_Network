@@ -1,6 +1,18 @@
 import axios from "../utils/axiosCustomize";
 
 class PostService {
+    addNewPost = (user_id, image, description) => {
+        const formData = new FormData();
+        formData.append("user_id", user_id);
+        formData.append("image", image);
+        formData.append("description", description);
+        return axios.post("api/post", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    };
+
     getAllPosts = (username) => {
         return axios.get(`api/post?username=${username}`);
     };
@@ -31,6 +43,10 @@ class PostService {
                 reject(error);
             }
         });
+    };
+
+    getAllPostsForProfile = (id) => {
+        return axios.get(`api/post/profile?id=${id}`);
     };
 }
 

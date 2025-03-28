@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Avatar, Button, Input, List, Tooltip, Card, Modal } from "antd";
-import { UserOutlined, SendOutlined, PictureOutlined } from "@ant-design/icons";
+import {
+    UserOutlined,
+    SendOutlined,
+    PictureOutlined,
+    DeleteOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import "./Comment.scss";
@@ -12,6 +17,7 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
     const [image, setImage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
+    const [previewImageCmt, setPreviewImageCmt] = useState("");
     const user = useSelector((state) => state.user);
 
     const handleSubmitComment = () => {
@@ -36,16 +42,30 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
         setImage("");
     };
 
-    const [previewVisible, setPreviewVisible] = useState(false);
-    const handlePreview = (image) => {
-        let previewImg = URL.createObjectURL(image);
-        setPreviewImage(previewImg);
-        setPreviewVisible(true);
+    const [previewVisibleCmt, setPreviewVisibleCmt] = useState(false);
+    const [previewVisibleChat, setPreviewVisibleChat] = useState(false);
+    const handlePreview = (image, type) => {
+        // let previewImg = URL.createObjectURL(image);
+
+        if (type === "cmt") {
+            setPreviewImageCmt(image);
+            setPreviewVisibleCmt(true);
+        }
+
+        if (type === "chat") {
+            setPreviewImage(image);
+            setPreviewVisibleChat(true);
+        }
     };
 
-    const handleCancelPreview = () => {
-        setPreviewImage("");
-        setPreviewVisible(false);
+    const handleCancelPreview = (type) => {
+        if (type === "cmt") {
+            setPreviewImageCmt("");
+            setPreviewVisibleCmt(false);
+        }
+        if (type === "chat") {
+            setPreviewVisibleChat(false);
+        }
     };
 
     const handleOnchangeImage = async (e) => {
@@ -75,8 +95,9 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
             >
                 <Avatar
                     src={
-                        user.avatar ||
-                        "https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/485059298_969209485394154_8363760988421917504_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=vNLFXfjYsE4Q7kNvgGdQZV1&_nc_oc=AdmoaCHNH6PZMla8WJtel1m8TyEKVmXCC9e7AeKuikVHUXt8ioMVwqGAlWiNjOiidMA2SRbq7erTdQLRrf2yIoTh&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=-zh-BQXkvcNHm1w7ximMDg&oh=00_AYExftgvnIkZvl1Azd2kTJXIK5B1voMes6Xkd-0x0ZUgaA&oe=67E43D75"
+                        user.avatar
+                            ? `http://localhost:3001/${user.avatar}`
+                            : `http://localhost:3001/default-avatar.png`
                     }
                     icon={!user.avatar && <UserOutlined />}
                     style={{ marginRight: 12 }}
@@ -102,7 +123,6 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                         style={{
                             position: "absolute",
                             right: 5,
-                            bottom: 5,
                             color: commentText.trim() ? "#1890ff" : "#bfbfbf",
                         }}
                     />
@@ -110,10 +130,41 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                         <div
                             className="preview-image"
                             style={{
+                                position: "relative",
                                 backgroundImage: `url(${previewImage})`,
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                                width: 100,
+                                height: 100,
+                                borderRadius: 8,
+                                marginTop: 8,
                             }}
-                            // onClick={this.openPreviewImage}
-                        ></div>
+                            onClick={() => handlePreview(previewImage, "chat")}
+                        >
+                            <Button
+                                type="text"
+                                icon={
+                                    <DeleteOutlined
+                                        style={{
+                                            color: "red",
+                                            fontSize: "14px",
+                                        }}
+                                    />
+                                }
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    return setPreviewImage("");
+                                }}
+                                style={{
+                                    position: "absolute",
+                                    top: -10,
+                                    right: -10,
+                                    background: "#fff",
+                                    borderRadius: "50%",
+                                    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                }}
+                            />
+                        </div>
                     )}
                 </div>
                 <input
@@ -149,7 +200,7 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                             avatar={
                                 comment?.user?.avatar && (
                                     <Avatar
-                                        src={comment?.user?.avatar}
+                                        src={`http://localhost:3001/${comment?.user?.avatar}`}
                                         icon={
                                             !comment?.user?.avatar && (
                                                 <UserOutlined />
@@ -165,7 +216,9 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                                         justifyContent: "space-between",
                                     }}
                                 >
-                                    <span>{comment?.user?.fullName}</span>
+                                    <span style={{ fontWeight: "bold" }}>
+                                        {comment?.user?.fullName}
+                                    </span>
                                     <Tooltip
                                         title={moment(comment.createdAt).format(
                                             "YYYY-MM-DD HH:mm:ss"
@@ -185,7 +238,7 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                                 </div>
                             }
                             description={
-                                <div>
+                                <div style={{ color: "#4e4e4e" }}>
                                     {comment.content}
                                     {comment?.image && (
                                         <div style={{ marginTop: 8 }}>
@@ -202,7 +255,8 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                                                 }}
                                                 onClick={() =>
                                                     handlePreview(
-                                                        comment?.image
+                                                        `http://localhost:3001/${comment?.image}`,
+                                                        "cmt"
                                                     )
                                                 }
                                             />
@@ -215,9 +269,21 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                 )}
             />
             <Modal
-                open={previewVisible}
+                open={previewVisibleCmt}
                 footer={null}
-                onCancel={handleCancelPreview}
+                onCancel={() => handleCancelPreview("cmt")}
+            >
+                <img
+                    alt="Preview"
+                    style={{ width: "100%", maxHeight: "80vh" }}
+                    src={previewImageCmt}
+                />
+            </Modal>
+
+            <Modal
+                open={previewVisibleChat}
+                footer={null}
+                onCancel={() => handleCancelPreview("chat")}
             >
                 <img
                     alt="Preview"

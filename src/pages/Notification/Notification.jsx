@@ -9,63 +9,42 @@ import {
 import "./Notification.scss";
 import { useContext } from "react";
 import CollapsedContext from "../../constants/CollapsedContext/CollapsedContext";
+import UserService from "../../service/UserService";
+import { toast } from "react-toastify";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 function Notification() {
     const { Text } = Typography;
     const collapsed = useContext(CollapsedContext);
+    const [notifications, setNotifications] = useState([]);
+    const account = useSelector((state) => state.user);
 
-    // Mock data - replace with actual API data later
-    const notifications = [
-        {
-            id: 1,
-            type: "follow",
-            user: {
-                name: "John Smith",
-                avatar: "https://source.unsplash.com/random/100x100?portrait=1",
-            },
-            content: "started following you",
-            time: "2 hours ago",
-            unread: true,
-        },
-        {
-            id: 2,
-            type: "like",
-            user: {
-                name: "Sarah Wilson",
-                avatar: "https://source.unsplash.com/random/100x100?portrait=2",
-            },
-            content: "liked your post",
-            postPreview: "Just another day at the office! 💻",
-            time: "5 hours ago",
-            unread: true,
-        },
-        {
-            id: 3,
-            type: "comment",
-            user: {
-                name: "Mike Johnson",
-                avatar: "https://source.unsplash.com/random/100x100?portrait=3",
-            },
-            content: "commented on your post",
-            comment: "Great work! Keep it up! 👍",
-            time: "1 day ago",
-            unread: false,
-        },
-    ];
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            let res = await UserService.getNotifications(account?.id);
+            if (res && res.data && res.errCode === 0) {
+                setNotifications(res.data);
+            } else {
+                toast.error(res.message);
+            }
+        };
+        fetchNotifications();
+    }, []);
 
-    const getNotificationIcon = (type) => {
-        switch (type) {
-            case "follow":
-                return <UserAddOutlined style={{ color: "#1890ff" }} />;
-            case "like":
-                return <HeartOutlined style={{ color: "#ff4d4f" }} />;
-            case "comment":
-                return <CommentOutlined style={{ color: "#52c41a" }} />;
-            default:
-                return <BellOutlined />;
-        }
-    };
-
+    // const getNotificationIcon = (type) => {
+    //     switch (type) {
+    //         case "follow":
+    //             return <UserAddOutlined style={{ color: "#1890ff" }} />;
+    //         case "like":
+    //             return <HeartOutlined style={{ color: "#ff4d4f" }} />;
+    //         case "comment":
+    //             return <CommentOutlined style={{ color: "#52c41a" }} />;
+    //         default:
+    //             return <BellOutlined />;
+    //     }
+    // };
+    console.log("notifications", notifications);
     const tabItems = [
         {
             key: "all",
@@ -94,7 +73,7 @@ function Notification() {
                                 avatar={
                                     <Badge dot={item.unread}>
                                         <Avatar
-                                            src={item.user.avatar}
+                                            src={`http://localhost:3001/${item?.avatar}`}
                                             size="large"
                                         />
                                     </Badge>
@@ -102,10 +81,11 @@ function Notification() {
                                 title={
                                     <div className="notification-header">
                                         <span className="notification-icon">
-                                            {getNotificationIcon(item.type)}
+                                            {item?.fullName}
                                         </span>
-                                        <Text strong>{item.user.name}</Text>
-                                        <Text> {item.content}</Text>
+                                        <Text strong>
+                                            đã gửi cho bạn lời mời kết bạn
+                                        </Text>
                                     </div>
                                 }
                                 description={

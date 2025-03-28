@@ -12,6 +12,9 @@ class UserService {
     getDetailUser = (id) => {
         return axios.get(`api/user/getDetail/${id}`);
     };
+    getNotifications = (id) => {
+        return axios.get(`api/user/get-notify-request-friend?id=${id}`);
+    };
 }
 
 export default new UserService();

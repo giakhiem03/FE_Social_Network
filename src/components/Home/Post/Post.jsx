@@ -1,41 +1,34 @@
-import { Card, Avatar, Button, Divider, Tooltip } from "antd";
-import {
-    UserOutlined,
-    LikeOutlined,
-    CommentOutlined,
-    ShareAltOutlined,
-} from "@ant-design/icons";
+import { Card, Avatar, Button, Divider, Tooltip, Modal } from "antd";
+import { CommentOutlined } from "@ant-design/icons";
 import "./Post.scss";
 import Comment from "./Comment/Comment.jsx";
 import { useEffect, useState } from "react";
-import PostService from "../../../service/PostService.js";
-import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import LikeButton from "../../Button/LikeButton/LikeButton.jsx";
 
-function Post() {
+function Post({ postList, fetchPosts }) {
     const user = useSelector((state) => state.user);
-    const [postList, setPostList] = useState([]);
+
+    const [activeComment, setActiveComment] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     useEffect(() => {
         fetchPosts();
     }, []);
 
-    const fetchPosts = async () => {
-        let res = await PostService.getAllPosts(user.username);
-        console.log("data", res);
-        if (res && res.data && res.errCode === 0) {
-            setPostList(res.data);
-        } else {
-            toast.error(res.message);
-        }
-    };
-
-    const [activeComment, setActiveComment] = useState(null);
-
     const handleToggleComment = (postId) => {
         setActiveComment(activeComment === postId ? null : postId);
+    };
+
+    const handleImageClick = (imageSrc) => {
+        setPreviewImage(imageSrc);
+        setIsModalVisible(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
     };
 
     return (
@@ -44,7 +37,15 @@ function Post() {
                 postList.map((post) => (
                     <Card key={post.id} style={{ marginBottom: 16 }}>
                         <Card.Meta
-                            avatar={user?.avatar}
+                            avatar={
+                                <Avatar
+                                    src={
+                                        user?.avatar
+                                            ? `http://localhost:3001${user.avatar}`
+                                            : "/default-avatar.png"
+                                    }
+                                />
+                            }
                             title={user?.fullName}
                             description={
                                 <Tooltip
@@ -65,19 +66,25 @@ function Post() {
                             className="wrap-post"
                         />
                         <div style={{ marginTop: 16 }}>
-                            <p>{post.caption}</p>
+                            <p>{post.description}</p>
                             {post.image && (
                                 <div
                                     style={{
                                         borderRadius: 8,
                                         overflow: "hidden",
-                                        width: "100%",
+                                        width: "100%", // decreased from 100% to 70%
                                         backgroundColor: "#f2f2f2", // tùy chọn nếu ảnh không phủ hết khung
                                         textAlign: "center", // để căn giữa ảnh
+                                        cursor: "pointer", // indicate clickable
                                     }}
+                                    onClick={() =>
+                                        handleImageClick(
+                                            `http://localhost:3001${post.image}`
+                                        )
+                                    }
                                 >
                                     <img
-                                        src={post.image}
+                                        src={`http://localhost:3001${post.image}`}
                                         alt="background"
                                         style={{
                                             width: "100%",
@@ -125,6 +132,27 @@ function Post() {
                     No contents...
                 </h3>
             )}
+
+            <Modal
+                visible={isModalVisible}
+                footer={null}
+                onCancel={handleModalClose}
+                width="80%"
+                centered
+                bodyStyle={{ padding: 0, backgroundColor: "transparent" }}
+                style={{ maxWidth: "1000px" }}
+            >
+                <img
+                    src={previewImage}
+                    alt="Enlarged view"
+                    style={{
+                        width: "100%",
+                        height: "auto",
+                        maxHeight: "90vh",
+                        objectFit: "contain",
+                    }}
+                />
+            </Modal>
         </>
     );
 }
