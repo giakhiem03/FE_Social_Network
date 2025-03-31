@@ -44,7 +44,6 @@ function Notification() {
     //             return <BellOutlined />;
     //     }
     // };
-    console.log("notifications", notifications);
     const tabItems = [
         {
             key: "all",

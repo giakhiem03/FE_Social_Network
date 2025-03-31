@@ -24,14 +24,6 @@ const MainLayout = () => {
         }
     }, [account, navigate]);
 
-    const arr = [
-        {
-            fullname: "Huỳnh Gia Khiêm",
-            image: avatar,
-        },
-        { fullname: "Lê Quang Hiến", image: avatar },
-    ];
-
     const { Search } = Input;
     const [collapsed, setCollapsed] = useState(false);
     return (
@@ -123,7 +115,7 @@ const MainLayout = () => {
                 <Sider width={300} theme="dark" className="side-home-right">
                     <div className="community-chats">
                         <div className="title">Community chats</div>
-                        <ListFriend ListFriend={arr} />
+                        <ListFriend />
                     </div>
                 </Sider>
             </Layout>

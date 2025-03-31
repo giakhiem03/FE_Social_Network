@@ -167,7 +167,7 @@ function Header({ fetchPosts }) {
             </div>
 
             <Modal
-                visible={isModalVisible}
+                open={isModalVisible}
                 footer={null}
                 onCancel={handleModalClose}
                 width="80%"

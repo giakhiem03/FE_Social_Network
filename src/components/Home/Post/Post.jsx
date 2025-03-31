@@ -134,7 +134,7 @@ function Post({ postList, fetchPosts }) {
             )}
 
             <Modal
-                visible={isModalVisible}
+                open={isModalVisible}
                 footer={null}
                 onCancel={handleModalClose}
                 width="80%"
