@@ -139,7 +139,9 @@ function Post({ postList, fetchPosts }) {
                 onCancel={handleModalClose}
                 width="80%"
                 centered
-                bodyStyle={{ padding: 0, backgroundColor: "transparent" }}
+                styles={{
+                    body: { padding: 0, backgroundColor: "transparent" },
+                }}
                 style={{ maxWidth: "1000px" }}
             >
                 <img
