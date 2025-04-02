@@ -14,7 +14,6 @@ function HomePage() {
     const [postList, setPostList] = useState([]);
     const fetchPosts = async () => {
         let res = await PostService.getAllPosts(account.username);
-        console.log("data", res);
         if (res && res.data && res.errCode === 0) {
             setPostList(res.data);
         } else {

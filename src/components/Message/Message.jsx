@@ -3,12 +3,14 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import UserService from "../../service/UserService";
 import { Avatar, Button, Input, Tooltip, Modal } from "antd";
+import socket from "../../utils/socket/socket";
 import {
     SendOutlined,
     CloseOutlined,
     PictureOutlined,
 } from "@ant-design/icons";
 import "./Message.scss";
+import { getBase64 } from "../../utils/image/image";
 
 function Message({ currentFriend, setIsChatOpen }) {
     const account = useSelector((state) => state.user);
@@ -18,17 +20,38 @@ function Message({ currentFriend, setIsChatOpen }) {
     const [messages, setMessages] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false); // State for Modal visibility
     const [modalImage, setModalImage] = useState(null); // State for the image to display in Modal
+    const [inputKey, setInputKey] = useState(0);
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
     const chatMessagesRef = useRef(null);
     const newMessageRef = useRef("");
     const inputRef = useRef(null);
 
-    const [inputKey, setInputKey] = useState(0);
-
+    // Kết nối đến phòng chat khi component mount
     useEffect(() => {
-        fetchMessages();
+        socket.emit("joinRoom", { id_1: account.id, id_2: currentFriend.id });
+
+        // 🟢 Nhận dữ liệu phòng chat từ server
+        socket.on("getChatRoom", ({ roomId, messages }) => {
+            setRoomChatId(roomId);
+            setMessages(messages.message);
+        });
+
+        socket.on("receiveMessage", (message) => {
+            console.log(message);
+            setMessages((prevMessages) => [...prevMessages, message.data]);
+        });
+
+        // Cleanup event khi rời phòng
+        return () => {
+            socket.off("roomJoined");
+            socket.off("receiveMessage");
+        };
     }, [currentFriend]);
+
+    // useEffect(() => {
+    //      fetchMessages();
+    // }, [currentFriend]);
 
     useEffect(() => {
         scrollToBottom();
@@ -37,6 +60,9 @@ function Message({ currentFriend, setIsChatOpen }) {
     const handleKeyPress = (e) => {
         if (e.key === "Enter") {
             handleSendMessage();
+        }
+        if (e.key === "Escape") {
+            setIsChatOpen(false);
         }
     };
 
@@ -60,23 +86,23 @@ function Message({ currentFriend, setIsChatOpen }) {
         }
     };
 
-    const fetchMessages = async () => {
-        try {
-            let res = await UserService.getMessages(
-                account.id,
-                currentFriend.id
-            );
-            if (res && res.data && res.errCode === 0) {
-                setRoomChatId(res.data.id);
-                setMessages(res.data.message);
-            } else {
-                toast.error(res.message || "Không thể tải tin nhắn");
-            }
-        } catch (error) {
-            console.error("Lỗi khi tải tin nhắn:", error);
-            toast.error("Có lỗi xảy ra khi tải tin nhắn");
-        }
-    };
+    // const fetchMessages = async () => {
+    //     try {
+    //         let res = await UserService.getMessages(
+    //             account.id,
+    //             currentFriend.id
+    //         );
+    //         if (res && res.data && res.errCode === 0) {
+    //             setRoomChatId(res.data.id);
+    //             setMessages(res.data.message);
+    //         } else {
+    //             toast.error(res.message || "Không thể tải tin nhắn");
+    //         }
+    //     } catch (error) {
+    //         console.error("Lỗi khi tải tin nhắn:", error);
+    //         toast.error("Có lỗi xảy ra khi tải tin nhắn");
+    //     }
+    // };
 
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
@@ -88,31 +114,38 @@ function Message({ currentFriend, setIsChatOpen }) {
         if (newMessageRef.current.trim() === "" && !selectedImage) return;
 
         try {
-            let res = await UserService.sendMessage(
-                roomChatId,
-                account.id,
-                newMessageRef.current,
-                selectedImage
-            );
-            if (res && res.errCode === 0) {
-                newMessageRef.current = "";
-                setInputKey((prev) => prev + 1);
+            // let res = await UserService.sendMessage(
+            //     roomChatId,
+            //     account.id,
+            //     newMessageRef.current,
+            //     selectedImage
+            // );
+            let base64 = selectedImage ? await getBase64(selectedImage) : "";
+            socket.emit("sendMessage", {
+                roomId: roomChatId,
+                userId: account.id,
+                content: newMessageRef.current,
+                image: base64,
+            });
+            newMessageRef.current = "";
+            setInputKey((prev) => prev + 1);
 
-                setTimeout(() => {
-                    if (inputRef.current) {
-                        inputRef.current.focus();
-                    }
-                }, 1);
-
-                setSelectedImage(null);
-                setImagePreview(null);
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
                 }
-                fetchMessages();
-            } else {
-                toast.error(res.message || "Không thể gửi tin nhắn");
+            }, 1);
+
+            setSelectedImage(null);
+            setImagePreview(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
             }
+            // fetchMessages();
+            // if (res && res.errCode === 0) {
+            // } else {
+            //     toast.error(res.message || "Không thể gửi tin nhắn");
+            // }
         } catch (error) {
             console.error("Lỗi khi gửi tin nhắn:", error);
             toast.error("Có lỗi xảy ra khi gửi tin nhắn");
@@ -123,17 +156,19 @@ function Message({ currentFriend, setIsChatOpen }) {
         const grouped = [];
         let currentGroup = null;
 
-        messages.forEach((msg) => {
+        messages?.forEach((msg) => {
             if (!currentGroup || currentGroup.user_id !== msg.user_id) {
                 currentGroup = {
                     user_id: msg.user_id,
                     messages: [msg],
-                    timestamp: new Date(msg.createdAt),
+                    timestamp: new Date(msg.createdAt || msg.updatedAt),
                 };
                 grouped.push(currentGroup);
             } else {
                 currentGroup.messages.push(msg);
-                currentGroup.timestamp = new Date(msg.createdAt);
+                currentGroup.timestamp = new Date(
+                    msg.createdAt || msg.updatedAt
+                );
             }
         });
 
@@ -171,7 +206,7 @@ function Message({ currentFriend, setIsChatOpen }) {
             </div>
 
             <div className="chat-messages" ref={chatMessagesRef}>
-                {groupedMessages.map((group, index) => (
+                {groupedMessages?.map((group, index) => (
                     <div
                         key={index}
                         className={`message-group ${
@@ -186,39 +221,44 @@ function Message({ currentFriend, setIsChatOpen }) {
                             />
                         )}
                         <div className="message-bubble-container">
-                            {group.messages.map((msg) => (
-                                <div key={msg.id} className="message-bubble">
-                                    {msg.image && (
-                                        <div
-                                            className="message-image"
-                                            onClick={() =>
-                                                handleImageClick(
-                                                    `http://localhost:3001${msg.image}`
-                                                )
-                                            }
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            <img
-                                                src={`http://localhost:3001${msg.image}`}
-                                                alt="Sent"
-                                                className="message-image-content"
-                                                onLoad={scrollToBottom}
-                                            />
-                                        </div>
-                                    )}
-                                    {msg.content && (
-                                        <Tooltip
-                                            title={new Date(
-                                                msg.createdAt
-                                            ).toLocaleString()}
-                                        >
-                                            <div className="message-content">
-                                                {msg.content}
+                            {group.messages.map((msg) => {
+                                return (
+                                    <div
+                                        key={msg.id}
+                                        className="message-bubble"
+                                    >
+                                        {msg.image && (
+                                            <div
+                                                className="message-image"
+                                                onClick={() =>
+                                                    handleImageClick(
+                                                        `http://localhost:3001${msg.image}`
+                                                    )
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                <img
+                                                    src={`http://localhost:3001${msg.image}`}
+                                                    alt="Sent"
+                                                    className="message-image-content"
+                                                    onLoad={scrollToBottom}
+                                                />
                                             </div>
-                                        </Tooltip>
-                                    )}
-                                </div>
-                            ))}
+                                        )}
+                                        {msg.content && (
+                                            <Tooltip
+                                                title={new Date(
+                                                    msg.createdAt
+                                                ).toLocaleString()}
+                                            >
+                                                <div className="message-content">
+                                                    {msg.content}
+                                                </div>
+                                            </Tooltip>
+                                        )}
+                                    </div>
+                                );
+                            })}
                             <div className="message-time">
                                 {group.timestamp.toLocaleTimeString([], {
                                     hour: "2-digit",
@@ -226,7 +266,7 @@ function Message({ currentFriend, setIsChatOpen }) {
                                 })}
                             </div>
                         </div>
-                        {group.user_id === account.id && (
+                        {/* {group.user_id === account.id && (
                             <Avatar
                                 src={`http://localhost:3001${
                                     account.avatar ||
@@ -235,7 +275,7 @@ function Message({ currentFriend, setIsChatOpen }) {
                                 size={36}
                                 className="message-avatar"
                             />
-                        )}
+                        )} */}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -287,7 +327,7 @@ function Message({ currentFriend, setIsChatOpen }) {
             </div>
 
             <Modal
-                visible={isModalVisible}
+                open={isModalVisible}
                 footer={null}
                 onCancel={handleModalClose}
                 centered
