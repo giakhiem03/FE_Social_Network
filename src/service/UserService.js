@@ -42,6 +42,10 @@ class UserService {
     //         },
     //     });
     // };
+
+    searchUsersByFullname = (fullName) => {
+        return axios.get(`api/user/search?fullName=${fullName}`);
+    };
 }
 
 export default new UserService();

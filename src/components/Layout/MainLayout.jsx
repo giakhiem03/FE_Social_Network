@@ -5,15 +5,19 @@ import "./MainLayout.scss";
 import ListFriend from "../List/ListFriend";
 import MenuLeftHome from "../Menu-Left-Home/MenuLeftHome";
 import { Outlet, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CollapsedContext from "../../constants/CollapsedContext/CollapsedContext";
 import { useSelector } from "react-redux";
+import { useDebounce } from "../../hooks";
+import UserService from "../../service/UserService";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
 
 const MainLayout = () => {
     const account = useSelector((state) => state.user);
     const navigate = useNavigate();
+    const searchRef = useRef(null);
 
     useEffect(() => {
         if (!account.id) {
@@ -26,6 +30,48 @@ const MainLayout = () => {
 
     const { Search } = Input;
     const [collapsed, setCollapsed] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const [searchResult, setSearchResult] = useState([]);
+    const [showResults, setShowResults] = useState(false);
+    const debounce = useDebounce(searchValue, 300);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                searchRef.current &&
+                !searchRef.current.contains(event.target)
+            ) {
+                setShowResults(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    useEffect(() => {
+        searchUsersByFullname();
+    }, [debounce]);
+
+    const searchUsersByFullname = async () => {
+        if (!debounce.trim()) {
+            setSearchResult([]);
+            return;
+        }
+
+        const list_search = await UserService.searchUsersByFullname(
+            searchValue
+        );
+        setSearchResult(list_search.data);
+    };
+
+    const handleOnChangeSearch = (e) => {
+        setSearchValue(e.target.value);
+        setShowResults(true);
+    };
+
     return (
         <Layout style={{ minHeight: "100vh" }}>
             <Header
@@ -49,27 +95,72 @@ const MainLayout = () => {
                 >
                     Social Network
                 </div>
-                <div className="search">
-                    <Search
-                        placeholder="Search..."
-                        onSearch={(value) => console.log(value)}
-                        size="medium"
-                        style={{
-                            borderRadius: "4px",
-                            display: "flex",
-                            alignItems: "center",
-                        }}
-                    />
+                <div className="search-container" ref={searchRef}>
+                    <div className="search-wrapper">
+                        <Input
+                            placeholder="Search people..."
+                            onChange={handleOnChangeSearch}
+                            size="large"
+                            prefix={
+                                <SearchOutlined style={{ color: "#65676b" }} />
+                            }
+                            onClick={() => {
+                                if (searchResult.length > 0) {
+                                    setShowResults(true);
+                                }
+                            }}
+                            style={{
+                                width: "320px",
+                                borderRadius: "20px",
+                                backgroundColor: "#f0f2f5",
+                                border: "none",
+                                boxShadow: "none",
+                            }}
+                        />
+                    </div>
+                    {showResults && searchResult.length > 0 && (
+                        <div className="search-results">
+                            <div className="results-list">
+                                {searchResult.map((user) => (
+                                    <div
+                                        key={user.id}
+                                        className="result-item"
+                                        onClick={() => {
+                                            navigate(`/profile/${user.id}`);
+                                            setShowResults(false);
+                                        }}
+                                    >
+                                        <div className="user-avatar">
+                                            <img
+                                                src={`http://localhost:3001${user.avatar}`}
+                                                alt={user.fullName}
+                                            />
+                                        </div>
+                                        <div className="user-info">
+                                            <div className="user-name">
+                                                {user.fullName}
+                                            </div>
+                                            {user.id === account.id ? (
+                                                <div className="user-status">
+                                                    Bạn
+                                                </div>
+                                            ) : (
+                                                user.friends.includes(
+                                                    account.id
+                                                ) && (
+                                                    <div className="user-status">
+                                                        Bạn bè
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div
-                    className="profile"
-                    style={{
-                        color: "#fff",
-                        padding: 16,
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
+                <div className="profile">
                     <img
                         src={avatar}
                         alt="Avatar"
