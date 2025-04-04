@@ -38,6 +38,10 @@ function LoginPage() {
         console.log("Lỗi:", errorInfo);
     };
 
+    const handleRegisterClick = () => {
+        navigate("/register");
+    };
+
     return (
         <div className="wrap-login">
             <Form
@@ -84,11 +88,26 @@ function LoginPage() {
                         type="default"
                         htmlType="submit"
                         size="large"
-                        style={{ padding: "20px 30px", marginBottom: "30px" }}
+                        style={{ padding: "20px 30px", marginBottom: "15px" }}
                     >
                         Login
                     </Button>
                 </Form.Item>
+
+                <div className="register-link">
+                    <span>Don't have an account?</span>
+                    <Button
+                        type="link"
+                        onClick={handleRegisterClick}
+                        style={{
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            padding: "0 8px",
+                        }}
+                    >
+                        Register now
+                    </Button>
+                </div>
             </Form>
         </div>
     );

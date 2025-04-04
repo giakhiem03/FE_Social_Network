@@ -1,5 +1,4 @@
 import { Layout } from "antd";
-import avatar from "../../assets/image/bg.jpg";
 import { Input } from "antd";
 import "./MainLayout.scss";
 import ListFriend from "../List/ListFriend";
@@ -11,12 +10,15 @@ import { useSelector } from "react-redux";
 import { useDebounce } from "../../hooks";
 import UserService from "../../service/UserService";
 import { SearchOutlined } from "@ant-design/icons";
-
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/redux/actions/userActions";
+import { Dropdown, Menu } from "antd";
 const { Header, Content, Sider } = Layout;
 
 const MainLayout = () => {
     const account = useSelector((state) => state.user);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const searchRef = useRef(null);
 
     useEffect(() => {
@@ -70,6 +72,11 @@ const MainLayout = () => {
     const handleOnChangeSearch = (e) => {
         setSearchValue(e.target.value);
         setShowResults(true);
+    };
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate("/login");
     };
 
     return (
@@ -161,17 +168,46 @@ const MainLayout = () => {
                     )}
                 </div>
                 <div className="profile">
-                    <img
-                        src={avatar}
-                        alt="Avatar"
-                        style={{
-                            borderRadius: "50%",
-                            marginRight: "8px",
-                            width: "40px",
-                            height: "40px",
+                    <Dropdown
+                        menu={{
+                            items: [
+                                {
+                                    key: "profile",
+                                    label: "Profile",
+                                    onClick: () =>
+                                        navigate(`/profile/${account.id}`),
+                                },
+                                {
+                                    key: "logout",
+                                    label: "Logout",
+                                    onClick: handleLogout,
+                                },
+                            ],
                         }}
-                    />
-                    <span style={{ fontSize: 18 }}>Ben Goro</span>
+                        trigger={["hover"]}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <img
+                                src={`http://localhost:3001${account.avatar}`}
+                                alt="Avatar"
+                                style={{
+                                    borderRadius: "50%",
+                                    marginRight: "8px",
+                                    width: "40px",
+                                    height: "40px",
+                                }}
+                            />
+                            <span style={{ fontSize: 18 }}>
+                                {account.fullName}
+                            </span>
+                        </div>
+                    </Dropdown>
                 </div>
             </Header>
 

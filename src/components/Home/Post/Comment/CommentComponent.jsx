@@ -20,6 +20,13 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
     const [previewImageCmt, setPreviewImageCmt] = useState("");
     const user = useSelector((state) => state.user);
 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmitComment();
+        }
+    };
+
     const handleSubmitComment = () => {
         if (!commentText.trim() && image === false) return;
         setSubmitting(true);
@@ -106,6 +113,7 @@ function CommentComponent({ postId, comments = [], onAddComment }) {
                     <TextArea
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="Write a comment..."
                         autoSize={{ minRows: 1, maxRows: 4 }}
                         style={{
