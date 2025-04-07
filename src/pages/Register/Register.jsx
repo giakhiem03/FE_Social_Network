@@ -9,7 +9,7 @@ function RegisterPage() {
     const handleRegister = async (data) => {
         let res = await UserService.register(data);
         if (res && res.errCode === 0) {
-            navigate("/login", {
+            navigate("/login-auth", {
                 replace: true,
             });
             toast.success("Registration successful!");
@@ -110,7 +110,8 @@ function RegisterPage() {
                 </Form.Item>
 
                 <div className="login-link">
-                    Already have an account? <a href="/login">Login here</a>
+                    Already have an account?{" "}
+                    <a href="/login-auth">Login here</a>
                 </div>
             </Form>
         </div>

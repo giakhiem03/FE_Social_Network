@@ -131,30 +131,6 @@ function Header({ fetchPosts }) {
                             Photo
                         </Button>
                     </Tooltip>
-                    <Tooltip title="Add Link">
-                        <Button
-                            icon={<LinkOutlined />}
-                            className="action-icon-button"
-                        >
-                            Link
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Add Location">
-                        <Button
-                            icon={<EnvironmentOutlined />}
-                            className="action-icon-button"
-                        >
-                            Location
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Add Emoji">
-                        <Button
-                            icon={<SmileOutlined />}
-                            className="action-icon-button"
-                        >
-                            Feeling
-                        </Button>
-                    </Tooltip>
                 </div>
                 <Button
                     type="primary"

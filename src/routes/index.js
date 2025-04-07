@@ -20,7 +20,7 @@ import AuthLoginRoute from "../components/AuthLogin/AuthLogin";
 
 const PATH = {
     HOME: "/",
-    LOGIN: "/login",
+    LOGIN: "/login-auth",
     PROFILE: "/profile",
     NOTIFICATION: "/notification",
     REGISTER: "/register",

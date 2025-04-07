@@ -38,13 +38,12 @@ function Message({ currentFriend, setIsChatOpen }) {
         });
 
         socket.on("receiveMessage", (message) => {
-            console.log(message);
             setMessages((prevMessages) => [...prevMessages, message.data]);
         });
 
         // Cleanup event khi rời phòng
         return () => {
-            socket.off("roomJoined");
+            socket.off("getChatRoom");
             socket.off("receiveMessage");
         };
     }, [currentFriend]);

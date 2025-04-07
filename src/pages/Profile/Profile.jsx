@@ -10,6 +10,10 @@ import {
     Divider,
     List,
     Space,
+    Modal,
+    Form,
+    Input,
+    Upload,
 } from "antd";
 import {
     EditOutlined,
@@ -20,6 +24,7 @@ import {
     PictureOutlined,
     VideoCameraOutlined,
     FileTextOutlined,
+    UploadOutlined,
 } from "@ant-design/icons";
 import "./Profile.scss";
 import { useContext, useEffect } from "react";
@@ -30,31 +35,92 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Comment from "../../components/Home/Post/Comment/Comment";
 import LikeButton from "../../components/Button/LikeButton/LikeButton";
+import UserService from "../../service/UserService";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/redux/actions/userActions";
 
 function Profile() {
     const { Title, Text, Paragraph } = Typography;
-
+    const dispatch = useDispatch();
     const account = useSelector((state) => state.user);
     const [postList, setPostList] = useState([]);
     const [activeComment, setActiveComment] = useState(null);
+    const collapsed = useContext(CollapsedContext);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [form] = Form.useForm();
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [backgroundPreview, setBackgroundPreview] = useState(null);
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [backgroundFile, setBackgroundFile] = useState(null);
+
+    const showEditModal = () => {
+        form.setFieldsValue({
+            fullName: account.fullName,
+            bio: account.bio,
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        form.validateFields().then(async (values) => {
+            values.id = account.id;
+            if (avatarFile) {
+                values.avatar = avatarFile;
+            }
+            if (backgroundFile) {
+                values.background = backgroundFile;
+            }
+            let res = await UserService.updateProfile(values);
+            if (res && res.errCode === 0) {
+                dispatch(setUser(res.data));
+                toast.success(res.message);
+                setBackgroundPreview(null);
+                setBackgroundFile(null);
+                setAvatarPreview(null);
+                setAvatarFile(null);
+                setIsModalOpen(false);
+            } else {
+                console.log(res.message);
+            }
+        });
+    };
+
+    const handleCancel = () => {
+        setBackgroundPreview(null);
+        setBackgroundFile(null);
+        setAvatarPreview(null);
+        setAvatarFile(null);
+        setIsModalOpen(false);
+    };
+    useEffect(() => {
+        fetchPostsForProfile();
+    }, []);
+
     const handleToggleComment = (postId) => {
         setActiveComment(activeComment === postId ? null : postId);
     };
 
     const fetchPostsForProfile = async () => {
         let res = await PostService.getAllPostsForProfile(account.id);
-        console.log("res", res);
         if (res && res.data && res.errCode === 0) {
             setPostList(res.data);
         } else {
             toast.error(res.message);
         }
     };
-    useEffect(() => {
-        fetchPostsForProfile();
-    }, []);
 
-    const collapsed = useContext(CollapsedContext);
+    const handleDeletePost = async (id) => {
+        if (window.confirm("Are you sure you want to delete this post?")) {
+            let res = await PostService.deleteById(id);
+            if (res && res.errCode === 0) {
+                toast.success(res.message);
+                fetchPostsForProfile();
+            } else {
+                toast.error(res.message);
+            }
+        }
+    };
+
     return (
         <div
             className="profile-container"
@@ -88,7 +154,11 @@ function Profile() {
                         height="100%"
                     />
                     <div className="profile-actions">
-                        <Button type="primary" icon={<EditOutlined />}>
+                        <Button
+                            type="primary"
+                            icon={<EditOutlined />}
+                            onClick={showEditModal}
+                        >
                             Edit Profile
                         </Button>
                         <Button icon={<SettingOutlined />}>Settings</Button>
@@ -99,7 +169,7 @@ function Profile() {
             {/* Profile Info */}
             <div className="profile-info">
                 <Title style={{ paddingTop: 20 }} level={2}>
-                    John Doe
+                    {account.fullName}
                 </Title>
                 <Text style={{ display: "block" }} type="secondary">
                     {/* {account.bio} */}Bio
@@ -112,10 +182,10 @@ function Profile() {
                     💼 Senior Developer @ Tech Corp
                 </Paragraph> */}
                 <Space className="profile-stats">
-                    <Text strong>2.5k Friends</Text>
+                    {/* <Text strong>2.5k Friends</Text>
                     <Divider type="vertical" />
                     <Text strong>1.2k Following</Text>
-                    <Divider type="vertical" />
+                    <Divider type="vertical" /> */}
                     <Text strong>{postList.length} Posts</Text>
                 </Space>
             </div>
@@ -142,7 +212,7 @@ function Profile() {
                                             key={post.id}
                                         >
                                             <div className="post-header">
-                                                <Space>
+                                                <Space style={{ flex: 1 }}>
                                                     <Avatar
                                                         src={`http://localhost:3001${account.avatar}`}
                                                     />
@@ -156,6 +226,17 @@ function Profile() {
                                                         </Text>
                                                     </div>
                                                 </Space>
+                                                <Button
+                                                    danger
+                                                    type="text"
+                                                    onClick={() => {
+                                                        handleDeletePost(
+                                                            post.id
+                                                        );
+                                                    }}
+                                                >
+                                                    Delete
+                                                </Button>
                                             </div>
                                             <Paragraph className="post-content">
                                                 {post.description}
@@ -237,6 +318,88 @@ function Profile() {
                     ]}
                 />
             </div>
+            <Modal
+                title="Edit Profile"
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                okText="Save"
+                cancelText="Cancel"
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item
+                        name="fullName"
+                        label="Full Name"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please enter your name",
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Avatar">
+                        <Upload
+                            beforeUpload={(file) => {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                    setAvatarPreview(e.target.result);
+                                };
+                                reader.readAsDataURL(file);
+                                setAvatarFile(file);
+                                return false; // Ngăn upload tự động
+                            }}
+                            showUploadList={false}
+                        >
+                            <Button icon={<UploadOutlined />}>
+                                Upload Avatar
+                            </Button>
+                        </Upload>
+                        {avatarPreview && avatarPreview !== account.avatar && (
+                            <Image
+                                src={`${avatarPreview}`}
+                                alt="avatar"
+                                width={100}
+                                style={{ borderRadius: "50%" }}
+                            />
+                        )}
+                    </Form.Item>
+
+                    <Form.Item label="Background">
+                        <Upload
+                            beforeUpload={(file) => {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                    setBackgroundPreview(e.target.result);
+                                };
+                                reader.readAsDataURL(file);
+                                setBackgroundFile(file);
+                                return false;
+                            }}
+                            showUploadList={false}
+                        >
+                            <Button icon={<UploadOutlined />}>
+                                Upload Background
+                            </Button>
+                        </Upload>
+                        {backgroundPreview &&
+                            backgroundPreview !== account.background && (
+                                <Image
+                                    src={`${backgroundPreview}`}
+                                    alt="background"
+                                    width="100%"
+                                    height={150}
+                                    style={{ objectFit: "cover" }}
+                                />
+                            )}
+                    </Form.Item>
+
+                    <Form.Item name="bio" label="Bio">
+                        <Input.TextArea rows={3} />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 }

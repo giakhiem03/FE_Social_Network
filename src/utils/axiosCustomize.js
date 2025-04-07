@@ -1,21 +1,22 @@
 import axios from "axios";
 import NProgress from "nprogress";
-// import { store } from "../redux/store";
+import store from "../store";
 
 NProgress.configure({
-    showSpinner: false,
+    showSpinner: true,
     trickleSpeed: 100,
 });
 
 const instance = axios.create({
     baseURL: "http://localhost:3001/",
+    withCredentials: true,
 });
 // Add a request interceptor
 instance.interceptors.request.use(
     function (config) {
-        // const access_token = store?.getState()?.user?.account?.access_token;
+        const access_token = store?.getState()?.user?.access_token;
 
-        // config.headers["Authorization"] = `Bearer ${access_token}`;
+        config.headers["Authorization"] = `Bearer ${access_token}`;
 
         NProgress.start();
 
@@ -33,13 +34,11 @@ instance.interceptors.response.use(
     function (response) {
         NProgress.done();
 
-        // Any status code that lie within the range of 2xx cause this function to trigger
-        // Do something with response data
+        // Trả về dữ liệu nếu có
         return response && response.data ? response.data : response;
     },
     function (error) {
         //token expired
-        console.log(error.response);
         if (error.response.data && error.response.data.EC === -999) {
             window.location.href("/login");
         }

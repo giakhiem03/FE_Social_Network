@@ -16,6 +16,12 @@ function ListFriend() {
         fetchListFriend();
     }, []);
 
+    useEffect(() => {
+        if (account.id) {
+            fetchListFriend(account.id);
+        }
+    }, [account.id]);
+
     const fetchListFriend = async () => {
         let res = await UserService.getFriendList(account.id);
         if (res && res.data && res.errCode === 0) {

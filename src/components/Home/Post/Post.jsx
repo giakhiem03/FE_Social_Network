@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import LikeButton from "../../Button/LikeButton/LikeButton.jsx";
+import PostService from "../../../service/PostService.js";
+import { toast } from "react-toastify";
 
 function Post({ postList, fetchPosts }) {
     const user = useSelector((state) => state.user);
@@ -31,40 +33,71 @@ function Post({ postList, fetchPosts }) {
         setIsModalVisible(false);
     };
 
+    const handleDeletePost = async (id) => {
+        if (window.confirm("Are you sure you want to delete this post?")) {
+            let res = await PostService.deleteById(id);
+            if (res && res.errCode === 0) {
+                toast.success(res.message);
+                fetchPosts();
+            } else {
+                toast.error(res.message);
+            }
+        }
+    };
+
     return (
         <>
             {postList && postList.length > 0 ? (
                 postList.map((post) => (
                     <Card key={post.id} style={{ marginBottom: 16 }}>
-                        <Card.Meta
-                            avatar={
-                                <Avatar
-                                    src={
-                                        user?.avatar
-                                            ? `http://localhost:3001${user.avatar}`
-                                            : "/default-avatar.png"
-                                    }
-                                />
-                            }
-                            title={user?.fullName}
-                            description={
-                                <Tooltip
-                                    title={moment(post.createdAt).format(
-                                        "YYYY-MM-DD HH:mm:ss"
-                                    )}
-                                >
-                                    <span
-                                        style={{
-                                            fontSize: 12,
-                                            color: "#999",
-                                        }}
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                            }}
+                        >
+                            <Card.Meta
+                                avatar={
+                                    <Avatar
+                                        src={
+                                            user?.avatar
+                                                ? `http://localhost:3001${user.avatar}`
+                                                : "/default-avatar.png"
+                                        }
+                                    />
+                                }
+                                title={user?.fullName}
+                                description={
+                                    <Tooltip
+                                        title={moment(post.createdAt).format(
+                                            "YYYY-MM-DD HH:mm:ss"
+                                        )}
                                     >
-                                        {moment(post.createdAt).fromNow()}
-                                    </span>
-                                </Tooltip>
-                            }
-                            className="wrap-post"
-                        />
+                                        <span
+                                            style={{
+                                                fontSize: 12,
+                                                color: "#999",
+                                            }}
+                                        >
+                                            {moment(post.createdAt).fromNow()}
+                                        </span>
+                                    </Tooltip>
+                                }
+                                className="wrap-post"
+                            />
+                            {post.post_by === user.id && (
+                                <Button
+                                    danger
+                                    type="text"
+                                    onClick={() => {
+                                        handleDeletePost(post.id);
+                                    }}
+                                >
+                                    Delete
+                                </Button>
+                            )}
+                        </div>
                         <div style={{ marginTop: 16 }}>
                             <p>{post.description}</p>
                             {post.image && (
@@ -72,10 +105,10 @@ function Post({ postList, fetchPosts }) {
                                     style={{
                                         borderRadius: 8,
                                         overflow: "hidden",
-                                        width: "100%", // decreased from 100% to 70%
+                                        width: "100%",
                                         backgroundColor: "#f2f2f2", // tùy chọn nếu ảnh không phủ hết khung
-                                        textAlign: "center", // để căn giữa ảnh
-                                        cursor: "pointer", // indicate clickable
+                                        textAlign: "center",
+                                        cursor: "pointer",
                                     }}
                                     onClick={() =>
                                         handleImageClick(
@@ -88,7 +121,7 @@ function Post({ postList, fetchPosts }) {
                                         alt="background"
                                         style={{
                                             width: "100%",
-                                            objectFit: "contain", // giống backgroundSize: "contain"
+                                            objectFit: "contain", // backgroundSize: "contain"
                                             display: "block", // tránh khoảng trắng dưới ảnh
                                         }}
                                     />

@@ -13,6 +13,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/redux/actions/userActions";
 import { Dropdown, Menu } from "antd";
+import { toast } from "react-toastify";
 const { Header, Content, Sider } = Layout;
 
 const MainLayout = () => {
@@ -21,21 +22,11 @@ const MainLayout = () => {
     const dispatch = useDispatch();
     const searchRef = useRef(null);
 
-    useEffect(() => {
-        if (!account.id) {
-            navigate("/login", {
-                state: { message: "Please login!" },
-                replace: true,
-            });
-        }
-    }, [account, navigate]);
-
-    const { Search } = Input;
     const [collapsed, setCollapsed] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     const [showResults, setShowResults] = useState(false);
-    const debounce = useDebounce(searchValue, 300);
+    const debounce = useDebounce(searchValue, 400);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -74,9 +65,15 @@ const MainLayout = () => {
         setShowResults(true);
     };
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate("/login");
+    const handleLogout = async () => {
+        let res = await UserService.logout();
+        if (res && res.errCode === 0) {
+            dispatch(logout());
+            navigate("/login-auth");
+            toast.success(res.message);
+        } else {
+            toast.error(res.message);
+        }
     };
 
     return (
@@ -133,7 +130,7 @@ const MainLayout = () => {
                                         key={user.id}
                                         className="result-item"
                                         onClick={() => {
-                                            navigate(`/profile/${user.id}`);
+                                            navigate(`/profile`);
                                             setShowResults(false);
                                         }}
                                     >
@@ -174,8 +171,7 @@ const MainLayout = () => {
                                 {
                                     key: "profile",
                                     label: "Profile",
-                                    onClick: () =>
-                                        navigate(`/profile/${account.id}`),
+                                    onClick: () => navigate(`/profile`),
                                 },
                                 {
                                     key: "logout",

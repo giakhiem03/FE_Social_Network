@@ -6,6 +6,8 @@ const initialState = {
     gender: "",
     bio: "",
     avatar: "",
+    role: "",
+    access_token: "",
     phoneNumber: "",
 };
 

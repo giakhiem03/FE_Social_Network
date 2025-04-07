@@ -2,7 +2,7 @@ import axios from "../utils/axiosCustomize";
 
 class UserService {
     login = (data) => {
-        return axios.post("api/user/login", data);
+        return axios.post("api/user/login-auth", data);
     };
 
     register = (data) => {
@@ -45,6 +45,28 @@ class UserService {
 
     searchUsersByFullname = (fullName) => {
         return axios.get(`api/user/search?fullName=${fullName}`);
+    };
+
+    getMe = () => {
+        return axios.get(`api/user/me`);
+    };
+
+    logout = () => {
+        return axios.post(`api/user/logout`);
+    };
+
+    updateProfile = (data) => {
+        const formData = new FormData();
+        formData.append("id", data.id);
+        formData.append("fullName", data.fullName);
+        formData.append("bio", data.bio);
+        if (data?.avatar) formData.append("avatar", data?.avatar);
+        if (data?.background) formData.append("background", data?.background);
+        return axios.put(`api/user/update-profile`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     };
 }
 

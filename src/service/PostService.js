@@ -48,6 +48,10 @@ class PostService {
     getAllPostsForProfile = (id) => {
         return axios.get(`api/post/profile?id=${id}`);
     };
+
+    deleteById = (id) => {
+        return axios.delete(`api/post/deleteById?id=${id}`);
+    };
 }
 
 export default new PostService();
