@@ -1,6 +1,7 @@
 import axios from "axios";
 import NProgress from "nprogress";
 import store from "../store";
+import { logout } from "../store/redux/actions/userActions";
 
 NProgress.configure({
     showSpinner: true,
@@ -11,6 +12,7 @@ const instance = axios.create({
     baseURL: "http://localhost:3001/",
     withCredentials: true,
 });
+
 // Add a request interceptor
 instance.interceptors.request.use(
     function (config) {
@@ -39,8 +41,9 @@ instance.interceptors.response.use(
     },
     function (error) {
         //token expired
-        if (error.response.data && error.response.data.EC === -999) {
-            window.location.href("/login");
+        if (error && (error.status === 403 || error.status === 401)) {
+            store.dispatch(logout());
+            window.location.href = "/login-auth";
         }
 
         NProgress.done();

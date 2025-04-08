@@ -110,7 +110,15 @@ function Message({ currentFriend, setIsChatOpen }) {
     };
 
     const handleSendMessage = async () => {
-        if (newMessageRef.current.trim() === "" && !selectedImage) return;
+        if (newMessageRef.current.trim() === "" && !selectedImage) {
+            toast.error("Tin nhắn không được bỏ trống");
+            return;
+        }
+
+        if (newMessageRef.current.length > 500) {
+            toast.error("Tin nhắn không được vượt quá 500 ký tự");
+            return;
+        }
 
         try {
             // let res = await UserService.sendMessage(
@@ -147,7 +155,6 @@ function Message({ currentFriend, setIsChatOpen }) {
             // }
         } catch (error) {
             console.error("Lỗi khi gửi tin nhắn:", error);
-            toast.error("Có lỗi xảy ra khi gửi tin nhắn");
         }
     };
 
@@ -250,7 +257,12 @@ function Message({ currentFriend, setIsChatOpen }) {
                                                     msg.createdAt
                                                 ).toLocaleString()}
                                             >
-                                                <div className="message-content">
+                                                <div
+                                                    className="message-content"
+                                                    style={{
+                                                        whiteSpace: "pre",
+                                                    }}
+                                                >
                                                     {msg.content}
                                                 </div>
                                             </Tooltip>
@@ -294,6 +306,7 @@ function Message({ currentFriend, setIsChatOpen }) {
                 )}
                 <div className="chat-input">
                     <input
+                        id="upload-image"
                         type="file"
                         accept="image/*"
                         onChange={handleImageSelect}
@@ -307,6 +320,7 @@ function Message({ currentFriend, setIsChatOpen }) {
                         className="image-button"
                     />
                     <Input
+                        id="input-value-message"
                         key={inputKey}
                         ref={inputRef}
                         placeholder="Aa"
