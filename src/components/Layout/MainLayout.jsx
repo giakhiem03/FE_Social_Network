@@ -9,11 +9,12 @@ import CollapsedContext from "../../constants/CollapsedContext/CollapsedContext"
 import { useSelector } from "react-redux";
 import { useDebounce } from "../../hooks";
 import UserService from "../../service/UserService";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusCircleFilled } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/redux/actions/userActions";
-import { Dropdown, Menu } from "antd";
+import { Dropdown } from "antd";
 import { toast } from "react-toastify";
+
 const { Header, Content, Sider } = Layout;
 
 const MainLayout = () => {
@@ -73,6 +74,15 @@ const MainLayout = () => {
             toast.success(res.message);
         } else {
             toast.error(res.message);
+        }
+    };
+
+    const handleAddFriend = async (id) => {
+        let res = await UserService.addNewFriend(account.id, id);
+        if (res && res.errCode === 0) {
+            toast.success(res.message);
+        } else {
+            toast.info(res.message);
         }
     };
 
@@ -148,16 +158,36 @@ const MainLayout = () => {
                                                 <div className="user-status">
                                                     Bạn
                                                 </div>
+                                            ) : user.friends.includes(
+                                                  account.id
+                                              ) ? (
+                                                <div className="user-status">
+                                                    Bạn bè
+                                                </div>
                                             ) : (
-                                                user.friends.includes(
-                                                    account.id
-                                                ) && (
-                                                    <div className="user-status">
-                                                        Bạn bè
-                                                    </div>
-                                                )
+                                                <div className="user-status">
+                                                    Người lạ
+                                                </div>
                                             )}
                                         </div>
+
+                                        {/* Nút thêm bạn nếu chưa là bạn */}
+                                        {user.id !== account.id &&
+                                            !user.friends.includes(
+                                                account.id
+                                            ) && (
+                                                <button
+                                                    className="add-friend-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Ngăn navigate khi nhấn nút
+                                                        handleAddFriend(
+                                                            user.id
+                                                        ); // Gọi hàm thêm bạn
+                                                    }}
+                                                >
+                                                    <PlusCircleFilled />
+                                                </button>
+                                            )}
                                     </div>
                                 ))}
                             </div>

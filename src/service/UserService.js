@@ -68,6 +68,24 @@ class UserService {
             },
         });
     };
+
+    addNewFriend = (user_1, user_2) => {
+        return axios.post(
+            `api/user/addfriend?user_1=${user_1}&user_2=${user_2}`
+        );
+    };
+
+    acceptRequestAddFriend = (user_1, user_2) => {
+        return axios.post(
+            `api/user/acceptRequestAddFriend?user_1=${user_1}&user_2=${user_2}`
+        );
+    };
+
+    rejectRequestAddFriend = (user_1, user_2) => {
+        return axios.post(
+            `api/user/rejectRequestAddFriend?user_1=${user_1}&user_2=${user_2}`
+        );
+    };
 }
 
 export default new UserService();
