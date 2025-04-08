@@ -1,8 +1,6 @@
-import { List, Avatar, Typography, Badge, Tabs, Button } from "antd";
+import { List, Avatar, Typography, Badge, Tabs, Button, Tooltip } from "antd";
 import {
-    BellOutlined,
     UserAddOutlined,
-    HeartOutlined,
     CommentOutlined,
     GlobalOutlined,
 } from "@ant-design/icons";
@@ -13,6 +11,7 @@ import UserService from "../../service/UserService";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import moment from "moment";
 
 function Notification() {
     const { Text } = Typography;
@@ -20,30 +19,38 @@ function Notification() {
     const [notifications, setNotifications] = useState([]);
     const account = useSelector((state) => state.user);
 
+    const fetchNotifications = async () => {
+        let res = await UserService.getNotifications(account?.id);
+        if (res && res.data && res.errCode === 0) {
+            setNotifications(res.data);
+        } else {
+            toast.error(res.message);
+        }
+    };
     useEffect(() => {
-        const fetchNotifications = async () => {
-            let res = await UserService.getNotifications(account?.id);
-            if (res && res.data && res.errCode === 0) {
-                setNotifications(res.data);
-            } else {
-                toast.error(res.message);
-            }
-        };
         fetchNotifications();
     }, []);
 
-    // const getNotificationIcon = (type) => {
-    //     switch (type) {
-    //         case "follow":
-    //             return <UserAddOutlined style={{ color: "#1890ff" }} />;
-    //         case "like":
-    //             return <HeartOutlined style={{ color: "#ff4d4f" }} />;
-    //         case "comment":
-    //             return <CommentOutlined style={{ color: "#52c41a" }} />;
-    //         default:
-    //             return <BellOutlined />;
-    //     }
-    // };
+    const handleAcceptRequest = async (id) => {
+        let res = await UserService.acceptRequestAddFriend(account?.id, id);
+        if (res && res.errCode === 0) {
+            toast.success(res.message);
+            fetchNotifications();
+        } else {
+            toast.error(res.message);
+        }
+    };
+
+    const rejectRequestAddFriend = async (id) => {
+        let res = await UserService.rejectRequestAddFriend(account?.id, id);
+        if (res && res.errCode === 0) {
+            toast.success(res.message);
+            fetchNotifications();
+        } else {
+            toast.error(res.message);
+        }
+    };
+
     const tabItems = [
         {
             key: "all",
@@ -59,30 +66,48 @@ function Notification() {
                     dataSource={notifications}
                     renderItem={(item) => (
                         <List.Item
-                            className={`notification-item ${
-                                item.unread ? "unread" : ""
-                            }`}
+                            className="notification-item"
                             actions={[
-                                <Button type="text" size="small">
-                                    Mark as read
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    style={{ backgroundColor: "#b2ffb2" }}
+                                    onClick={() =>
+                                        handleAcceptRequest(item.user_1.id)
+                                    }
+                                >
+                                    Accept
+                                </Button>,
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    style={{ backgroundColor: "#ee5959" }}
+                                    onClick={() =>
+                                        rejectRequestAddFriend(item.user_1.id)
+                                    }
+                                >
+                                    Reject
                                 </Button>,
                             ]}
                         >
                             <List.Item.Meta
                                 avatar={
-                                    <Badge dot={item.unread}>
+                                    <Badge dot={item?.unread}>
                                         <Avatar
-                                            src={`http://localhost:3001/${item?.avatar}`}
+                                            src={`http://localhost:3001/${item?.user_1?.avatar}`}
                                             size="large"
                                         />
                                     </Badge>
                                 }
                                 title={
-                                    <div className="notification-header">
-                                        <span className="notification-icon">
-                                            {item?.fullName}
+                                    <div className="notification">
+                                        <span className="notification">
+                                            {item?.user_1?.fullName}
                                         </span>
-                                        <Text strong>
+                                        <Text
+                                            strong
+                                            style={{ marginLeft: "6px" }}
+                                        >
                                             đã gửi cho bạn lời mời kết bạn
                                         </Text>
                                     </div>
@@ -91,20 +116,25 @@ function Notification() {
                                     <div className="notification-content">
                                         {item.comment && (
                                             <Text className="notification-preview">
-                                                "{item.comment}"
+                                                {item?.user_1?.comment}
                                             </Text>
                                         )}
-                                        {item.postPreview && (
-                                            <Text className="notification-preview">
-                                                "{item.postPreview}"
-                                            </Text>
-                                        )}
-                                        <Text
-                                            type="secondary"
-                                            className="notification-time"
+                                        <Tooltip
+                                            title={moment(
+                                                item?.user_1?.createdAt
+                                            ).format("YYYY-MM-DD HH:mm:ss")}
                                         >
-                                            {item.time}
-                                        </Text>
+                                            <span
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: "#999",
+                                                }}
+                                            >
+                                                {moment(
+                                                    item?.user_1?.createdAt
+                                                ).fromNow()}
+                                            </span>
+                                        </Tooltip>
                                     </div>
                                 }
                             />
