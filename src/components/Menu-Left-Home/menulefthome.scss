@@ -1,0 +1,35 @@
+.menu-left-home {
+    height: 100%;
+    background-color: #001529; // màu nền mặc định của menu dark Ant Design
+    border-right: none;
+    user-select: none;
+  
+    .ant-menu {
+      height: 100%;
+      background: transparent;
+  
+      .ant-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        padding: 12px 20px;
+        color: #fff;
+        transition: background-color 0.3s ease;
+  
+        &:hover {
+          background-color: #1890ff33; // hover nhẹ
+        }
+  
+        &.ant-menu-item-selected {
+          background-color: #1890ff;
+          color: #fff;
+          font-weight: 500;
+        }
+  
+        .anticon {
+          font-size: 18px;
+        }
+      }
+    }
+  }
