@@ -172,7 +172,7 @@ function Profile() {
                     {account.fullName}
                 </Title>
                 <Text style={{ display: "block" }} type="secondary">
-                    {/* {account.bio} */}Bio
+                    {account.bio}
                 </Text>
                 {/* <Paragraph className="profile-bio">
                     📍 San Francisco, CA

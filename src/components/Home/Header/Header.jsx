@@ -22,9 +22,13 @@ function Header({ fetchPosts }) {
 
     const handlePost = async () => {
         if (!description && !image) {
-            message.warning(
+            toast.warning(
                 "Please add a description or an image before posting."
             );
+            return;
+        }
+        if (image && image.type.startsWith("video/")) {
+            toast.info("Chưa hỗ trợ file video");
             return;
         }
 

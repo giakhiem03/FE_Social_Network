@@ -7,6 +7,10 @@ import { useNavigate } from "react-router";
 function RegisterPage() {
     const navigate = useNavigate();
     const handleRegister = async (data) => {
+        if (!/\d/.test(data.password)) {
+            toast.error("Password must have numbers");
+            return;
+        }
         let res = await UserService.register(data);
         if (res && res.errCode === 0) {
             navigate("/login-auth", {
@@ -61,9 +65,9 @@ function RegisterPage() {
                                 message: "Please enter your password!",
                             },
                             {
-                                min: 6,
+                                min: 8,
                                 message:
-                                    "Password must be at least 6 characters!",
+                                    "Password must be at least 8 characters!",
                             },
                         ]}
                     >
@@ -110,7 +114,7 @@ function RegisterPage() {
                 </Form.Item>
 
                 <div className="login-link">
-                    Already have an account?{" "}
+                    Already have an account?
                     <a href="/login-auth">Login here</a>
                 </div>
             </Form>

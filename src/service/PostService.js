@@ -52,6 +52,19 @@ class PostService {
     deleteById = (id) => {
         return axios.delete(`api/post/deleteById?id=${id}`);
     };
+
+    updatePost = (id, description, image) => {
+        const formData = new FormData();
+        formData.append("id", id);
+        formData.append("description", description);
+        formData.append("image", image);
+
+        return axios.put("api/post/update-post", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    };
 }
 
 export default new PostService();

@@ -1,5 +1,21 @@
-import { Card, Avatar, Button, Divider, Tooltip, Modal } from "antd";
-import { CommentOutlined } from "@ant-design/icons";
+import {
+    Card,
+    Avatar,
+    Button,
+    Divider,
+    Tooltip,
+    Modal,
+    Dropdown,
+    Menu,
+    Upload,
+} from "antd";
+import {
+    CommentOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    EllipsisOutlined,
+    UploadOutlined,
+} from "@ant-design/icons";
 import "./Post.scss";
 import Comment from "./Comment/Comment.jsx";
 import { useEffect, useState } from "react";
@@ -15,6 +31,9 @@ function Post({ postList, fetchPosts }) {
     const [activeComment, setActiveComment] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [editingPost, setEditingPost] = useState(null);
+    const [editDescription, setEditDescription] = useState("");
+    const [editImage, setEditImage] = useState(null);
 
     useEffect(() => {
         fetchPosts();
@@ -45,6 +64,42 @@ function Post({ postList, fetchPosts }) {
         }
     };
 
+    const menuItems = [
+        {
+            key: "update",
+            label: "Edit",
+            icon: <EditOutlined />,
+        },
+        {
+            key: "delete",
+            label: "Delete",
+            icon: <DeleteOutlined />,
+            danger: true,
+        },
+    ];
+
+    const handleUpdateClick = (post) => {
+        setEditingPost(post);
+        setEditDescription(post.description || "");
+        setEditImage(null); // reset file nếu có trước đó
+    };
+
+    const handleUpdateSubmit = async () => {
+        if (!editingPost) return;
+        const res = await PostService.updatePost(
+            editingPost.id,
+            editDescription,
+            editImage
+        );
+        if (res && res.errCode === 0) {
+            toast.success(res.message);
+            fetchPosts();
+            setEditingPost(null);
+        } else {
+            toast.error(res.message || "Update failed");
+        }
+    };
+
     return (
         <>
             {postList && postList.length > 0 ? (
@@ -60,14 +115,10 @@ function Post({ postList, fetchPosts }) {
                             <Card.Meta
                                 avatar={
                                     <Avatar
-                                        src={
-                                            user?.avatar
-                                                ? `http://localhost:3001${user.avatar}`
-                                                : "/default-avatar.png"
-                                        }
+                                        src={`http://localhost:3001${post?.userPost?.avatar}`}
                                     />
                                 }
-                                title={user?.fullName}
+                                title={post?.userPost?.fullName}
                                 description={
                                     <Tooltip
                                         title={moment(post.createdAt).format(
@@ -87,15 +138,27 @@ function Post({ postList, fetchPosts }) {
                                 className="wrap-post"
                             />
                             {post.post_by === user.id && (
-                                <Button
-                                    danger
-                                    type="text"
-                                    onClick={() => {
-                                        handleDeletePost(post.id);
+                                <Dropdown
+                                    menu={{
+                                        items: menuItems,
+                                        onClick: ({ key }) => {
+                                            if (key === "update")
+                                                handleUpdateClick(post);
+                                            if (key === "delete")
+                                                handleDeletePost(post.id);
+                                        },
                                     }}
+                                    trigger={["click"]}
                                 >
-                                    Delete
-                                </Button>
+                                    <Button
+                                        type="text"
+                                        icon={
+                                            <EllipsisOutlined
+                                                style={{ fontSize: 20 }}
+                                            />
+                                        }
+                                    />
+                                </Dropdown>
                             )}
                         </div>
                         <div style={{ marginTop: 16 }}>
@@ -187,6 +250,43 @@ function Post({ postList, fetchPosts }) {
                         objectFit: "contain",
                     }}
                 />
+            </Modal>
+            <Modal
+                title="Update Post"
+                open={!!editingPost}
+                onCancel={() => setEditingPost(null)}
+                onOk={handleUpdateSubmit}
+                okText="Update"
+            >
+                <div style={{ marginBottom: 12 }}>
+                    <label>Description:</label>
+                    <textarea
+                        rows={4}
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        style={{ width: "100%", marginTop: 8 }}
+                    />
+                </div>
+                <div>
+                    <label>Image:</label>
+                    <Upload
+                        beforeUpload={(file) => {
+                            if (file.type.startsWith("video/")) {
+                                toast.info("Chưa hỗ trợ file video");
+                                return false;
+                            }
+                            setEditImage(file);
+                            return false; // không upload ngay lập tức
+                        }}
+                        // showUploadList={
+                        //     editImage ? [{ name: editImage.name }] : false
+                        // }
+                        fileList={editImage ? [editImage] : []}
+                        onRemove={() => setEditImage(null)}
+                    >
+                        <Button icon={<UploadOutlined />}>Choose Image</Button>
+                    </Upload>
+                </div>
             </Modal>
         </>
     );
