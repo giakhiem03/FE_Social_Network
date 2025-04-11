@@ -182,11 +182,11 @@ function Profile() {
                     💼 Senior Developer @ Tech Corp
                 </Paragraph> */}
                 <Space className="profile-stats">
-                    {/* <Text strong>2.5k Friends</Text>
-                    <Divider type="vertical" />
-                    <Text strong>1.2k Following</Text>
-                    <Divider type="vertical" /> */}
                     <Text strong>{postList.length} Posts</Text>
+                    <Divider type="vertical" />
+                    <Text strong>{account.countFriend} Follower</Text>
+                    <Divider type="vertical" />
+                    <Text strong>{account.countFriend} Friends</Text>
                 </Space>
             </div>
 

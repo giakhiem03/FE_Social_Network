@@ -10,7 +10,7 @@ class UserService {
     };
 
     getDetailUser = (id) => {
-        return axios.get(`api/user/getDetail/${id}`);
+        return axios.get(`api/user/${id}`);
     };
 
     getNotifications = (id) => {

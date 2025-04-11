@@ -9,6 +9,7 @@ const initialState = {
     role: "",
     access_token: "",
     phoneNumber: "",
+    countFriend: 0,
 };
 
 const counterReducer = (state = initialState, action) => {

@@ -86,6 +86,15 @@ const MainLayout = () => {
         }
     };
 
+    const handleShowProfile = (id) => {
+        if (account.id === id) {
+            navigate(`/profile`);
+        } else {
+            navigate(`/profile/${id}`);
+        }
+        setShowResults(false);
+    };
+
     return (
         <Layout style={{ minHeight: "100vh" }}>
             <Header
@@ -139,10 +148,9 @@ const MainLayout = () => {
                                     <div
                                         key={user.id}
                                         className="result-item"
-                                        onClick={() => {
-                                            navigate(`/profile`);
-                                            setShowResults(false);
-                                        }}
+                                        onClick={() =>
+                                            handleShowProfile(user.id)
+                                        }
                                     >
                                         <div className="user-avatar">
                                             <img

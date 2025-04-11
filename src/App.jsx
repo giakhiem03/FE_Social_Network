@@ -28,6 +28,10 @@ function App() {
                             path={PATH.NOTIFICATION}
                             element={<PAGE.Notification />}
                         ></Route>
+                        <Route
+                            path={PATH.FRIEND_PROFILE}
+                            element={<PAGE.FriendProfile />}
+                        ></Route>
                     </Route>
                 </Route>
             </Routes>

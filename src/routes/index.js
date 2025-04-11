@@ -8,6 +8,7 @@ import {
     // PictureOutlined,
     // VideoCameraOutlined,
     NotificationFilled,
+    UserSwitchOutlined,
 } from "@ant-design/icons";
 import HomePage from "../pages/Home";
 import LoginPage from "../pages/Login";
@@ -17,11 +18,13 @@ import MainLayout from "../components/Layout/MainLayout";
 import AuthRoute from "../components/Auth";
 import RegisterPage from "../pages/Register";
 import AuthLoginRoute from "../components/AuthLogin/AuthLogin";
+import FriendProfile from "../pages/Profile/FriendProfile/FriendProfile";
 
 const PATH = {
     HOME: "/",
     LOGIN: "/login-auth",
     PROFILE: "/profile",
+    FRIEND_PROFILE: "/profile/:id",
     NOTIFICATION: "/notification",
     REGISTER: "/register",
 };
@@ -31,6 +34,7 @@ const PAGE = {
     Home: HomePage,
     Login: LoginPage,
     Profile: ProfilePage,
+    FriendProfile: FriendProfile,
     Notification: NotificationPage,
     Register: RegisterPage,
     Auth: AuthRoute,
